@@ -14,6 +14,7 @@ enum TileType
     LETTER = 5,
     DEADEND = 6,
     MAZE_WALL = 7,
+    NPC = 8,
 }
 
 public class LevelGenerator : MonoBehaviour
@@ -27,6 +28,8 @@ public class LevelGenerator : MonoBehaviour
     public GameObject tree_prefab_3;
     public GameObject heart_prefab;
     public GameObject trap_prefab;
+    public GameObject spike_prefab;
+    public GameObject slime_prefab;
     private int width;
     private int length;
     private List<string> wordBank = new List<string>{ "Apple", "Game", "Word"};
@@ -65,6 +68,7 @@ public class LevelGenerator : MonoBehaviour
             placeHealth(letters);
             createMaze(grid);
             placeTraps(letters);
+            placeNPCs(letters);
             success = checkConstraints();
             if(!success) {
                 grid = new List<TileType>[width, length];
@@ -205,7 +209,23 @@ public class LevelGenerator : MonoBehaviour
                 if (grid[wr, lr] == null || grid[wr, lr][0] == TileType.FLOOR)
                 {                 
                     grid[wr, lr] = new List<TileType> { TileType.TRAP };
-                    destinations.Add(new int[2] { wr, lr });
+                    break;
+                }
+            }
+        }
+    }
+
+        private void placeNPCs(int x) {
+        System.Random rnd = new System.Random();
+        for(int i=0; i<x/2; i++) {
+            Debug.Log("placing trap");
+            while (true) {
+                int wr = rnd.Next(1, width - 1);
+                int lr = rnd.Next(1, length - 1);
+
+                if (grid[wr, lr] == null || grid[wr, lr][0] == TileType.FLOOR)
+                {                 
+                    grid[wr, lr] = new List<TileType> { TileType.NPC };
                     break;
                 }
             }
@@ -299,6 +319,16 @@ public class LevelGenerator : MonoBehaviour
                 {
                     GameObject trap = Instantiate(trap_prefab, new Vector3(x, 1f, z), Quaternion.identity);
                     trap.name = "TRAP";
+                }
+                else if (grid[w, l][0] == TileType.NPC)
+                {
+                    List<GameObject> npcList = new List<GameObject>();
+                    npcList.Add(spike_prefab);
+                    npcList.Add(slime_prefab);
+                    int index = rnd.Next(npcList.Count);
+                    GameObject curr_npc = npcList[index];
+                    GameObject npc = Instantiate(curr_npc, new Vector3(x, 1f, z), Quaternion.identity);
+                    npc.name = "NPC";
                 }
                 else if (grid[w, l][0] == TileType.MAZE_WALL)
                 {
