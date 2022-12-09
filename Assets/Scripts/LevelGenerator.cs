@@ -12,6 +12,8 @@ enum TileType
     HEALTH = 3,
     CATAPULT = 4,
     LETTER = 5,
+    DEADEND = 6,
+    MAZE_WALL = 7,
 }
 
 public class LevelGenerator : MonoBehaviour
@@ -20,9 +22,15 @@ public class LevelGenerator : MonoBehaviour
     private Bounds bounds;
     public GameObject box_prefab;
     public GameObject wall_prefab;
+    public GameObject tree_prefab_1;
+    public GameObject tree_prefab_2;
+    public GameObject tree_prefab_3;
+    public GameObject heart_prefab;
+    public GameObject trap_prefab;
     private int width;
     private int length;
-    private List<string> wordBank = new List<string>{ "Apple"};
+    private List<string> wordBank = new List<string>{ "Apple", "Game", "Word"};
+    List<int[]> destinations;
     Dictionary<char, List<int[]>> objectives;
     List<TileType>[,] grid;
 
@@ -38,11 +46,12 @@ public class LevelGenerator : MonoBehaviour
         Debug.Log(bounds.min.z);
         Debug.Log(bounds.max.z);
 
-        length = 16;
-        width = 16;
+        length = 24;
+        width = 24;
 
         grid = new List<TileType>[width, length];
         objectives = new Dictionary<char, List<int[]>>();
+        destinations = new List<int[]>();
 
         bool success = false;
 
@@ -53,8 +62,15 @@ public class LevelGenerator : MonoBehaviour
             int letters = placeLetters(grid);
             // randomly place the x deadends
             placeDeadends(grid, letters);
-
-            success = true;
+            placeHealth(letters);
+            createMaze(grid);
+            placeTraps(letters);
+            success = checkConstraints();
+            if(!success) {
+                grid = new List<TileType>[width, length];
+                objectives = new Dictionary<char, List<int[]>>();
+                destinations = new List<int[]>();
+            }
         }
 
         renderLevel(grid);
@@ -66,17 +82,186 @@ public class LevelGenerator : MonoBehaviour
         // prefab = generateBoxObject("A");
         // box = Instantiate(box_prefab, new Vector3(10, 3.28f, 10), Quaternion.identity);
 
-        Debug.Log("here");
+        // Debug.Log("here");
+    }
+
+    public bool checkConstraints() {
+        // distance between words > 8
+        foreach(int[] start in destinations) {
+            foreach(int[] end in destinations) {
+                if(start[0] == end[0] && start[1] == end[1])
+                    continue;
+                else {
+                    if(Math.Sqrt((start[0]-end[0])*(start[0]-end[0]) + (start[1]-end[1])*(start[1]-end[1])) < 3) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        //traps are in the middle
+        for (int w = 0; w < width; w++) {
+            for (int l = 0; l < length; l++) {
+                if(grid[w, l][0] == TileType.TRAP) {                  
+                    if(grid[w+1, l][0] == TileType.WALL || grid[w+1, l+1][0] == TileType.WALL || grid[w+1, l-1][0] == TileType.WALL ||
+                        grid[w, l+1][0] == TileType.WALL || grid[w, l-1][0] == TileType.WALL ||
+                        grid[w-1, l][0] == TileType.WALL || grid[w-1, l+1][0] == TileType.WALL || grid[w-1, l-1][0] == TileType.WALL) {
+                            return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private void createPath(int w, int l, int w1, int l1, List<TileType>[,] grid) {
+        if(w < w1) {
+            if(l == l1) {
+                int x = w;
+                while(x <= w1) {
+                    if(grid[x, l][0] == TileType.LETTER || grid[x, l][0] == TileType.DEADEND || grid[x, l][0] == TileType.WALL || grid[x, l][0] == TileType.HEALTH) {
+                        x++;
+                    } else {
+                        grid[x, l] = new List<TileType> {TileType.FLOOR};
+                        x++;
+                    }
+                }
+            } else if (l < l1) {
+                int x = w;
+                while(x <= w1) {
+                    if(grid[x, l][0] == TileType.LETTER || grid[x, l][0] == TileType.DEADEND || grid[x, l][0] == TileType.WALL || grid[x, l][0] == TileType.HEALTH) {
+                        x++;
+                    } else {
+                        grid[x, l] = new List<TileType> {TileType.FLOOR};
+                        x++;
+                    }
+                }
+
+                int y = l;
+                while(y <= l1) {
+                    if(grid[w1, y][0] == TileType.LETTER || grid[w1, y][0] == TileType.DEADEND || grid[w1, y][0] == TileType.WALL || grid[w1, y][0] == TileType.HEALTH) {
+                        y++;
+                    } else {
+                        grid[w1, y] = new List<TileType> {TileType.FLOOR};
+                        y++;
+                    }
+                }
+            } else {
+                int x = w;
+                while(x <= w1) {
+                    if(grid[x, l][0] == TileType.LETTER || grid[x, l][0] == TileType.DEADEND || grid[x, l][0] == TileType.WALL || grid[x, l][0] == TileType.HEALTH) {
+                        x++;
+                    } else {
+                        grid[x, l] = new List<TileType> {TileType.FLOOR};
+                        x++;
+                    }
+                }
+
+                int y = l1;
+                while(y <= l) {
+                    if(grid[w1, y][0] == TileType.LETTER || grid[w1, y][0] == TileType.DEADEND || grid[w1, y][0] == TileType.WALL || grid[w1, y][0] == TileType.HEALTH) {
+                        y++;
+                    } else {
+                        grid[w1, y] = new List<TileType> {TileType.FLOOR};
+                        y++;
+                    }
+                }
+            }
+        }  else {
+            if(l == l1) {
+                return;
+            } else if(l<l1) {
+                int y = l;
+                while(y <= l1) {
+                    if(grid[w, y][0] == TileType.LETTER || grid[w, y][0] == TileType.DEADEND || grid[w, y][0] == TileType.WALL || grid[w, y][0] == TileType.HEALTH) {
+                        y++;
+                    } else {
+                        grid[w, y] = new List<TileType> {TileType.FLOOR};
+                        y++;
+                    }
+                }
+            } else {
+                int y = l1;
+                while(y <= l) {
+                    if(grid[w, y][0] == TileType.LETTER || grid[w, y][0] == TileType.DEADEND || grid[w, y][0] == TileType.WALL || grid[w, y][0] == TileType.HEALTH) {
+                        y++;
+                    } else {
+                        grid[w, y] = new List<TileType> {TileType.FLOOR};
+                        y++;
+                    }
+                }
+            }
+        }
+    }
+
+    private void placeTraps(int x) {
+        System.Random rnd = new System.Random();
+        for(int i=0; i<x; i++) {
+            Debug.Log("placing trap");
+            while (true) {
+                int wr = rnd.Next(1, width - 1);
+                int lr = rnd.Next(1, length - 1);
+
+                if (grid[wr, lr] == null || grid[wr, lr][0] == TileType.FLOOR)
+                {                 
+                    grid[wr, lr] = new List<TileType> { TileType.TRAP };
+                    destinations.Add(new int[2] { wr, lr });
+                    break;
+                }
+            }
+        }
+    }
+
+    private void createMaze(List<TileType>[,] grid) {
+        System.Random rnd = new System.Random();
+        for (int w = 0; w < width; w++) {
+            for (int l = 0; l < length; l++) {
+                if (w == 0 || l == 0 || w == width - 1 || l == length - 1)
+                    continue;
+                if(grid[w , l][0] == TileType.FLOOR) {                    
+                    if(grid[w+1, l][0] == TileType.LETTER || grid[w+1, l+1][0] == TileType.LETTER || grid[w+1, l-1][0] == TileType.LETTER ||
+                        grid[w, l+1][0] == TileType.LETTER || grid[w, l-1][0] == TileType.LETTER ||
+                        grid[w-1, l][0] == TileType.LETTER || grid[w-1, l+1][0] == TileType.LETTER || grid[w-1, l-1][0] == TileType.LETTER) {
+                            
+                    } else {
+                        grid[w, l] = new List<TileType> {TileType.MAZE_WALL}; 
+                    }
+                }
+            }
+        }
+        // create path between all destinations
+        foreach(int[] start in destinations) {
+            foreach(int[] end in destinations) {
+                createPath(start[0], start[1], end[0], end[1], grid);
+            }
+        }
+
+        // add random spaces
+        for (int w = 0; w < width; w++) {
+            for (int l = 0; l < length; l++) {
+                if(grid[w, l][0] == TileType.MAZE_WALL) {                  
+                    if(grid[w+1, l][0] == TileType.FLOOR || grid[w+1, l+1][0] == TileType.FLOOR || grid[w+1, l-1][0] == TileType.FLOOR ||
+                        grid[w, l+1][0] == TileType.FLOOR || grid[w, l-1][0] == TileType.FLOOR ||
+                        grid[w-1, l][0] == TileType.FLOOR || grid[w-1, l+1][0] == TileType.FLOOR || grid[w-1, l-1][0] == TileType.FLOOR) {
+                            int prob = rnd.Next(1,11);
+                            if(prob > 8) {
+                                grid[w, l][0] = TileType.FLOOR;
+                            }
+                    }
+                }
+            }
+        }
     }
 
     private void renderLevel(List<TileType>[,] grid) {
+        System.Random rnd = new System.Random();
         int w = 0;
         for (float x = bounds.min[0]+1; x < bounds.max[0]; x += bounds.size[0] / (float)width - 1e-6f, w++)
         {
             int l = 0;
             for (float z = bounds.min[2]+1; z < bounds.max[2]; z += bounds.size[2] / (float)length - 1e-6f, l++)
             {
-                Debug.Log(w + " " + l);
+                // Debug.Log(w + " " + l);
                 if ((w >= width) || (l >= width))
                     continue;
 
@@ -102,7 +287,31 @@ public class LevelGenerator : MonoBehaviour
                 else if (grid[w, l][0] == TileType.WALL)
                 {
                     GameObject wall = Instantiate(wall_prefab, new Vector3(x, y, z), Quaternion.identity);
+                    wall.AddComponent<MeshCollider>();
                     wall.name = "WALL";
+                }
+                else if (grid[w, l][0] == TileType.HEALTH)
+                {
+                    GameObject heart = Instantiate(heart_prefab, new Vector3(x, y, z), Quaternion.identity);
+                    heart.name = "HEART";
+                }
+                else if (grid[w, l][0] == TileType.TRAP)
+                {
+                    GameObject trap = Instantiate(trap_prefab, new Vector3(x, 1f, z), Quaternion.identity);
+                    trap.name = "TRAP";
+                }
+                else if (grid[w, l][0] == TileType.MAZE_WALL)
+                {
+                    int prob = rnd.Next(1, 11);
+                    List<GameObject> trees = new List<GameObject>();
+                    trees.Add(tree_prefab_1);
+                    trees.Add(tree_prefab_2);
+                    trees.Add(tree_prefab_3);
+                    int index = rnd.Next(trees.Count);
+                    GameObject curr_tree = trees[index];
+                    GameObject tree = Instantiate(curr_tree, new Vector3(x, y, z), Quaternion.identity);
+                    tree.AddComponent<BoxCollider>();
+                    tree.name = "TREE";
                 }
             }
         }
@@ -120,13 +329,14 @@ public class LevelGenerator : MonoBehaviour
                 int wr = rnd.Next(1, width - 1);
                 int lr = rnd.Next(1, length - 1);
 
-                if (grid[wr, lr] == null)
+                if (grid[wr, lr] == null || grid[wr, lr][0] == TileType.FLOOR)
                 {
                     if(!objectives.ContainsKey(Char.ToUpper(c))) {
                         objectives.Add(Char.ToUpper(c), new List<int[]>());
                     }
                     grid[wr, lr] = new List<TileType> { TileType.LETTER };
                     objectives[Char.ToUpper(c)].Add(new int[2] { wr, lr });
+                    destinations.Add(new int[2] { wr, lr });
                     break;
                 }
             }
@@ -137,7 +347,7 @@ public class LevelGenerator : MonoBehaviour
 
     private void placeDeadends(List<TileType>[,] grid, int x) {
         System.Random rnd = new System.Random();
-        for(int i=0; i<x; i++) {
+        for(int i=0; i<2*x; i++) {
             int random = rnd.Next(0, 2);
             int wr;
             int lr;
@@ -158,15 +368,52 @@ public class LevelGenerator : MonoBehaviour
                     wr = width-1;
                 }
             }
-            grid[wr, lr] = new List<TileType> { TileType.FLOOR };
+            grid[wr, lr] = new List<TileType> { TileType.DEADEND };
+            destinations.Add(new int[2] { wr, lr });
+        }
+
+        for(int i=0; i<x/2; i++) {
+            while (true) {
+                int wr = rnd.Next(1, width - 1);
+                int lr = rnd.Next(1, length - 1);
+
+                if (grid[wr, lr] == null || grid[wr, lr][0] == TileType.FLOOR)
+                {                 
+                    grid[wr, lr] = new List<TileType> { TileType.DEADEND };
+                    destinations.Add(new int[2] { wr, lr });
+                    break;
+                }
+            }
+        }
+    }
+
+    private void placeHealth(int x) {
+        System.Random rnd = new System.Random();
+        for(int i=0; i<x; i++) {
+            Debug.Log("placing heart");
+            while (true) {
+                int wr = rnd.Next(1, width - 1);
+                int lr = rnd.Next(1, length - 1);
+
+                if (grid[wr, lr] == null || grid[wr, lr][0] == TileType.FLOOR)
+                {                 
+                    grid[wr, lr] = new List<TileType> { TileType.HEALTH };
+                    destinations.Add(new int[2] { wr, lr });
+                    break;
+                }
+            }
         }
     }
 
     private void createBorder(List<TileType>[,] grid) {
-        for (int w = 0; w < width; w++)
-            for (int l = 0; l < length; l++)
+        for (int w = 0; w < width; w++) {
+            for (int l = 0; l < length; l++) {
                 if (w == 0 || l == 0 || w == width - 1 || l == length - 1)
                     grid[w, l] = new List<TileType> { TileType.WALL };
+                else
+                    grid[w, l] = new List<TileType> { TileType.FLOOR };
+            }
+        }
     }
 
     private GameObject generateBoxObject(char letter) {
