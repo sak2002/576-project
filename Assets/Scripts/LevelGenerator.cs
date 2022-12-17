@@ -15,6 +15,7 @@ enum TileType
     DEADEND = 6,
     MAZE_WALL = 7,
     NPC = 8,
+    TOWER = 9,
 }
 
 public class LevelGenerator : MonoBehaviour
@@ -30,12 +31,19 @@ public class LevelGenerator : MonoBehaviour
     public GameObject trap_prefab;
     public GameObject spike_prefab;
     public GameObject slime_prefab;
+    public GameObject tower_prefab;
     private int width;
     private int length;
     private List<string> wordBank = new List<string>{ "Apple", "Game", "Word"};
     List<int[]> destinations;
+    List<int[]> letterDestinations;
+    List<int[]> dndDestinations;
+    List<int[]> npcDestinations;
+    List<int[]> towerCoords;
     Dictionary<char, List<int[]>> objectives;
     List<TileType>[,] grid;
+    int wStart;
+    int lStart;
 
     // Start is called before the first frame update
     void Start()
@@ -55,26 +63,87 @@ public class LevelGenerator : MonoBehaviour
         grid = new List<TileType>[width, length];
         objectives = new Dictionary<char, List<int[]>>();
         destinations = new List<int[]>();
+        letterDestinations = new List<int[]>();
+        dndDestinations = new List<int[]>();
+        npcDestinations = new List<int[]>();
+        towerCoords = new List<int[]>();
 
         bool success = false;
+        int i = 0;
 
-        while(!success) {
+        while(!success && i < 100) {
             // create a border
-            createBorder(grid);
-            // randomly place the x letters
-            int letters = placeLetters(grid);
-            // randomly place the x deadends
-            placeDeadends(grid, letters);
-            placeHealth(letters);
-            createMaze(grid);
-            placeTraps(letters);
-            placeNPCs(letters);
-            success = checkConstraints();
-            if(!success) {
-                grid = new List<TileType>[width, length];
-                objectives = new Dictionary<char, List<int[]>>();
-                destinations = new List<int[]>();
+            createBorder();
+
+            // pick word
+            string word = pickWord();
+            int numLetters = word.Length;
+
+            // set corners as tower tiles
+            // randomly place towers on tower tiles
+            placeTowers(numLetters);
+
+            // place random trees with high probability
+            placeTrees();
+
+            // place letters, deadend, npc on 20x20
+
+            placeWord(word);
+            placeNPCs(numLetters);
+            placeDeadends(numLetters);
+
+            // place 1 dead on each wall
+
+            // connect letters, deadends to start
+            System.Random rnd = new System.Random();
+            // grid[3,14] = new List<TileType>{TileType.TRAP};
+            // grid[7,9] = new List<TileType>{TileType.TRAP};
+            // connect(3, 14, 7, 9);
+            while (true) {
+                wStart = rnd.Next(5, width - 5);
+                lStart = rnd.Next(5, length - 5);
+
+                if(grid[wStart, lStart] == null || grid[wStart, lStart][0] == TileType.FLOOR) {
+                    break;
+                }
             }
+
+            // Debug.Log("sstart : " + wStart + " " + lStart);
+
+            foreach(int[] dest in destinations) {
+            //     Debug.Log("connecting : " + dest[0] + " " + dest[1]);
+                connect(wStart, lStart, dest[0], dest[1]);
+            }
+
+
+            // randomly connect two deadends/letters
+
+            // place traps and health
+
+            // randomly place the x letters
+            // int letters = placeLetters(grid);
+            // // randomly place the x deadends
+            // placeDeadends(grid, letters);
+            // placeHealth(letters);
+            // createMaze(grid);
+            // placeTraps(letters);
+            // placeNPCs(letters);
+            // success = checkConstraints();
+            // if(!success) {
+            //     grid = new List<TileType>[width, length];
+            //     objectives = new Dictionary<char, List<int[]>>();
+            //     destinations = new List<int[]>();
+            // }
+            success = true;
+            i++;
+        }
+
+        for(int k=0; k< width; k++) {
+            String s = "";
+            for(int j=0; j<width; j++) {
+                s = s + " " + (grid[k, j][0]).ToString()[0];
+            }
+            Debug.Log(s);
         }
 
         renderLevel(grid);
@@ -89,112 +158,222 @@ public class LevelGenerator : MonoBehaviour
         // Debug.Log("here");
     }
 
-    public bool checkConstraints() {
-        // distance between words > 8
-        foreach(int[] start in destinations) {
-            foreach(int[] end in destinations) {
-                if(start[0] == end[0] && start[1] == end[1])
-                    continue;
-                else {
-                    if(Math.Sqrt((start[0]-end[0])*(start[0]-end[0]) + (start[1]-end[1])*(start[1]-end[1])) < 3) {
-                        return false;
+    private void connect(int wstart, int lstart, int wend, int lend) {
+
+        System.Random rnd = new System.Random();
+        bool trap_placed = false;
+        bool health_placed = false;
+        
+        int steps = 0;
+
+        int direction_w;
+        int direction_l;
+
+        if(wstart > wend) {
+            direction_w = -1;
+        } else {
+            direction_w = 1;
+        }
+
+        if(lstart > lend) {
+            direction_l = -1;
+        } else {
+            direction_l = 1;
+        }
+
+        int x = wstart;
+        int y = lstart;
+
+        while(x != wend || y != lend) {
+            Debug.Log(x + " " + y);
+            int choice = rnd.Next(0, 2);
+            if(choice == 0) {
+                // go in w
+                if(x != wend) {
+                    x = x + direction_w;
+                    if (grid[x, y][0] == TileType.MAZE_WALL) {
+                        grid[x, y] = new List<TileType>{TileType.FLOOR};
+                    }
+                }
+            } else {
+                // go in l
+                if(y != lend) {
+                    y = y + direction_l;
+                    if (grid[x, y][0] == TileType.MAZE_WALL) {
+                        grid[x, y] = new List<TileType>{TileType.FLOOR};
                     }
                 }
             }
-        }
 
-        //traps are in the middle
-        for (int w = 0; w < width; w++) {
-            for (int l = 0; l < length; l++) {
-                if(grid[w, l][0] == TileType.TRAP) {                  
-                    if(grid[w+1, l][0] == TileType.WALL || grid[w+1, l+1][0] == TileType.WALL || grid[w+1, l-1][0] == TileType.WALL ||
-                        grid[w, l+1][0] == TileType.WALL || grid[w, l-1][0] == TileType.WALL ||
-                        grid[w-1, l][0] == TileType.WALL || grid[w-1, l+1][0] == TileType.WALL || grid[w-1, l-1][0] == TileType.WALL) {
-                            return false;
+            steps++;
+            
+            int prob_trap = rnd.Next(0, 11);
+            if(!trap_placed && prob_trap > 7 && steps > 4 && grid[x, y][0] == TileType.FLOOR) {
+                grid[x, y] = new List<TileType>{TileType.TRAP};
+                trap_placed = true;
+            }
+            
+            int prob_health = rnd.Next(0, 11);
+            if(trap_placed && !health_placed && prob_health > 4 && steps > 6 && grid[x, y][0] == TileType.FLOOR) {
+                grid[x, y] = new List<TileType>{TileType.HEALTH};
+                health_placed = true;
+            }
+        }
+    }
+
+    private void placeTrees() {
+        for (int w = 2; w < width-2; w++) {
+            for (int l = 2; l < length-2; l++) {
+                System.Random rnd = new System.Random();
+                int i = rnd.Next(1,11);
+                if(i > 3) {
+                // if(i > 0) {
+                    grid[w, l] = new List<TileType> { TileType.MAZE_WALL };
+                }
+            }
+        }
+    }
+
+    private void placeWord(string word) {
+        int dist = 6;
+        foreach (char c in word)
+        {
+            while (true) {
+                System.Random rnd = new System.Random();
+                int wr = rnd.Next(2, width - 2);
+                int lr = rnd.Next(2, length - 2);
+
+                if (checkConstraints(letterDestinations, wr, lr, dist) && (grid[wr, lr] == null || grid[wr, lr][0] == TileType.FLOOR))
+                {
+                    if(!objectives.ContainsKey(Char.ToUpper(c))) {
+                        objectives.Add(Char.ToUpper(c), new List<int[]>());
                     }
+                    grid[wr, lr] = new List<TileType> { TileType.LETTER };
+                    
+                    // if (grid[wr, lr+1][0] == TileType.MAZE_WALL) grid[wr, lr+1] = new List<TileType> { TileType.FLOOR };
+                    // if (grid[wr, lr-1][0] == TileType.MAZE_WALL) grid[wr, lr-1] = new List<TileType> { TileType.FLOOR };
+                    // if (grid[wr+1, lr+1][0] == TileType.MAZE_WALL) grid[wr+1, lr+1] = new List<TileType> { TileType.FLOOR };
+                    // if (grid[wr-1, lr-1][0] == TileType.MAZE_WALL) grid[wr-1, lr-1] = new List<TileType> { TileType.FLOOR };
+                    // if (grid[wr-1, lr+1][0] == TileType.MAZE_WALL) grid[wr-1, lr+1] = new List<TileType> { TileType.FLOOR };
+                    // if (grid[wr+1, lr-1][0] == TileType.MAZE_WALL) grid[wr+1, lr-1] = new List<TileType> { TileType.FLOOR };
+                    // if (grid[wr+1, lr][0] == TileType.MAZE_WALL) grid[wr+1, lr] = new List<TileType> { TileType.FLOOR };
+                    // if (grid[wr-1, lr][0] == TileType.MAZE_WALL) grid[wr-1, lr] = new List<TileType> { TileType.FLOOR };
+
+
+                    objectives[Char.ToUpper(c)].Add(new int[2] { wr, lr });
+                    destinations.Add(new int[2] { wr, lr });
+                    letterDestinations.Add(new int[2] { wr, lr });
+                    break;
+                }
+            }
+        }
+    }
+
+    private void placeNPCs(int x) {
+        System.Random rnd = new System.Random();
+        int dist = 5;
+        for(int i=0; i<x; i++) {
+            Debug.Log("placing npc");
+            while (true) {
+                int wr = rnd.Next(2, width - 2);
+                int lr = rnd.Next(2, length - 2);
+
+                if (checkConstraints(npcDestinations, wr, lr, dist) && (grid[wr, lr] == null || grid[wr, lr][0] == TileType.FLOOR))
+                {                 
+                    grid[wr, lr] = new List<TileType> { TileType.NPC };
+                    destinations.Add(new int[2] { wr, lr });
+                    npcDestinations.Add(new int[2] { wr, lr });
+                    break;
+                }
+            }
+        }
+    }
+
+    private void placeDeadends(int x) {
+        System.Random rnd = new System.Random();
+        for(int i=0; i<x/2; i++) {
+            Debug.Log("placing deadend");
+            while (true) {
+                int wr = rnd.Next(2, width - 2);
+                int lr = rnd.Next(2, length - 2);
+
+                if (grid[wr, lr] == null || grid[wr, lr][0] == TileType.FLOOR)
+                {                 
+                    grid[wr, lr] = new List<TileType> { TileType.DEADEND };
+                    destinations.Add(new int[2] { wr, lr });
+                    dndDestinations.Add(new int[2] { wr, lr });
+                    break;
+                }
+            }
+        }
+    }
+
+    public bool checkConstraints(List<int []> dest, int w, int l, int dist) {
+        // distance between letters > 2
+        foreach(int[] start in dest) {
+            if(start[0] == w && start[1] == l)
+                continue;
+            else {
+                if(Math.Abs((start[0]-w) + (start[1]-l)) < dist) {
+                    Debug.Log("not valid");                        
+                    return false;
                 }
             }
         }
         return true;
     }
 
-    private void createPath(int w, int l, int w1, int l1, List<TileType>[,] grid) {
-        if(w < w1) {
-            if(l == l1) {
-                int x = w;
-                while(x <= w1) {
-                    if(grid[x, l][0] == TileType.LETTER || grid[x, l][0] == TileType.DEADEND || grid[x, l][0] == TileType.WALL || grid[x, l][0] == TileType.HEALTH) {
-                        x++;
-                    } else {
-                        grid[x, l] = new List<TileType> {TileType.FLOOR};
-                        x++;
-                    }
-                }
-            } else if (l < l1) {
-                int x = w;
-                while(x <= w1) {
-                    if(grid[x, l][0] == TileType.LETTER || grid[x, l][0] == TileType.DEADEND || grid[x, l][0] == TileType.WALL || grid[x, l][0] == TileType.HEALTH) {
-                        x++;
-                    } else {
-                        grid[x, l] = new List<TileType> {TileType.FLOOR};
-                        x++;
-                    }
-                }
+    public string pickWord() {
+        System.Random random = new System.Random();
+        int index = random.Next(wordBank.Count);
+        string word = wordBank[index];
+        return word;
+    }
 
-                int y = l;
-                while(y <= l1) {
-                    if(grid[w1, y][0] == TileType.LETTER || grid[w1, y][0] == TileType.DEADEND || grid[w1, y][0] == TileType.WALL || grid[w1, y][0] == TileType.HEALTH) {
-                        y++;
-                    } else {
-                        grid[w1, y] = new List<TileType> {TileType.FLOOR};
-                        y++;
-                    }
-                }
-            } else {
-                int x = w;
-                while(x <= w1) {
-                    if(grid[x, l][0] == TileType.LETTER || grid[x, l][0] == TileType.DEADEND || grid[x, l][0] == TileType.WALL || grid[x, l][0] == TileType.HEALTH) {
-                        x++;
-                    } else {
-                        grid[x, l] = new List<TileType> {TileType.FLOOR};
-                        x++;
-                    }
-                }
+    public void placeTowers(int x) {
+        int numTowers = x/2;
+        List<int []> towerNodes = new List<int []>();
+        towerNodes.Add(new int[2]{1,1});
+        towerNodes.Add(new int[2]{-1,-1});
+        towerNodes.Add(new int[2]{-1,1});
+        towerNodes.Add(new int[2]{1,-1});
+        
+        int y = 0;
 
-                int y = l1;
-                while(y <= l) {
-                    if(grid[w1, y][0] == TileType.LETTER || grid[w1, y][0] == TileType.DEADEND || grid[w1, y][0] == TileType.WALL || grid[w1, y][0] == TileType.HEALTH) {
-                        y++;
-                    } else {
-                        grid[w1, y] = new List<TileType> {TileType.FLOOR};
-                        y++;
-                    }
-                }
+        grid[0, 0] = new List<TileType> {TileType.TOWER};
+        grid[0, 1] = new List<TileType> {TileType.TOWER};
+        grid[1, 0] = new List<TileType> {TileType.TOWER};
+        grid[1, 1] = new List<TileType> {TileType.TOWER};
+
+        grid[22, 22] = new List<TileType> {TileType.TOWER};
+        grid[22, 23] = new List<TileType> {TileType.TOWER};
+        grid[23, 22] = new List<TileType> {TileType.TOWER};
+        grid[23, 23] = new List<TileType> {TileType.TOWER};
+
+        grid[0, 22] = new List<TileType> {TileType.TOWER};
+        grid[0, 23] = new List<TileType> {TileType.TOWER};
+        grid[1, 22] = new List<TileType> {TileType.TOWER};
+        grid[1, 23] = new List<TileType> {TileType.TOWER};
+
+        grid[22, 0] = new List<TileType> {TileType.TOWER};
+        grid[22, 1] = new List<TileType> {TileType.TOWER};
+        grid[23, 0] = new List<TileType> {TileType.TOWER};
+        grid[23, 1] = new List<TileType> {TileType.TOWER};
+
+        while(y < numTowers && y < 4) {
+            // tower location = towerNodes[y]
+            int[] towerLoc = towerNodes[y];
+            if(towerLoc[0] == 1 && towerLoc[1] == 1) {
+                towerCoords.Add(new int[]{22,22});
+            } else if(towerLoc[0] == 1 && towerLoc[1] == -1) {
+                towerCoords.Add(new int[]{22,-22});
+            } else if(towerLoc[0] == -1 && towerLoc[1] == -1) {
+                towerCoords.Add(new int[]{-22,-22});
+            } else if(towerLoc[0] == -1 && towerLoc[1] == 1) {
+                towerCoords.Add(new int[]{-22,22});
             }
-        }  else {
-            if(l == l1) {
-                return;
-            } else if(l<l1) {
-                int y = l;
-                while(y <= l1) {
-                    if(grid[w, y][0] == TileType.LETTER || grid[w, y][0] == TileType.DEADEND || grid[w, y][0] == TileType.WALL || grid[w, y][0] == TileType.HEALTH) {
-                        y++;
-                    } else {
-                        grid[w, y] = new List<TileType> {TileType.FLOOR};
-                        y++;
-                    }
-                }
-            } else {
-                int y = l1;
-                while(y <= l) {
-                    if(grid[w, y][0] == TileType.LETTER || grid[w, y][0] == TileType.DEADEND || grid[w, y][0] == TileType.WALL || grid[w, y][0] == TileType.HEALTH) {
-                        y++;
-                    } else {
-                        grid[w, y] = new List<TileType> {TileType.FLOOR};
-                        y++;
-                    }
-                }
-            }
+            
+            y++;
         }
     }
 
@@ -215,67 +394,16 @@ public class LevelGenerator : MonoBehaviour
         }
     }
 
-        private void placeNPCs(int x) {
-        System.Random rnd = new System.Random();
-        for(int i=0; i<x/2; i++) {
-            Debug.Log("placing trap");
-            while (true) {
-                int wr = rnd.Next(1, width - 1);
-                int lr = rnd.Next(1, length - 1);
-
-                if (grid[wr, lr] == null || grid[wr, lr][0] == TileType.FLOOR)
-                {                 
-                    grid[wr, lr] = new List<TileType> { TileType.NPC };
-                    break;
-                }
-            }
-        }
-    }
-
-    private void createMaze(List<TileType>[,] grid) {
-        System.Random rnd = new System.Random();
-        for (int w = 0; w < width; w++) {
-            for (int l = 0; l < length; l++) {
-                if (w == 0 || l == 0 || w == width - 1 || l == length - 1)
-                    continue;
-                if(grid[w , l][0] == TileType.FLOOR) {                    
-                    if(grid[w+1, l][0] == TileType.LETTER || grid[w+1, l+1][0] == TileType.LETTER || grid[w+1, l-1][0] == TileType.LETTER ||
-                        grid[w, l+1][0] == TileType.LETTER || grid[w, l-1][0] == TileType.LETTER ||
-                        grid[w-1, l][0] == TileType.LETTER || grid[w-1, l+1][0] == TileType.LETTER || grid[w-1, l-1][0] == TileType.LETTER) {
-                            
-                    } else {
-                        grid[w, l] = new List<TileType> {TileType.MAZE_WALL}; 
-                    }
-                }
-            }
-        }
-        // create path between all destinations
-        foreach(int[] start in destinations) {
-            foreach(int[] end in destinations) {
-                createPath(start[0], start[1], end[0], end[1], grid);
-            }
-        }
-
-        // add random spaces
-        for (int w = 0; w < width; w++) {
-            for (int l = 0; l < length; l++) {
-                if(grid[w, l][0] == TileType.MAZE_WALL) {                  
-                    if(grid[w+1, l][0] == TileType.FLOOR || grid[w+1, l+1][0] == TileType.FLOOR || grid[w+1, l-1][0] == TileType.FLOOR ||
-                        grid[w, l+1][0] == TileType.FLOOR || grid[w, l-1][0] == TileType.FLOOR ||
-                        grid[w-1, l][0] == TileType.FLOOR || grid[w-1, l+1][0] == TileType.FLOOR || grid[w-1, l-1][0] == TileType.FLOOR) {
-                            int prob = rnd.Next(1,11);
-                            if(prob > 8) {
-                                grid[w, l][0] = TileType.FLOOR;
-                            }
-                    }
-                }
-            }
-        }
-    }
-
     private void renderLevel(List<TileType>[,] grid) {
         System.Random rnd = new System.Random();
         int w = 0;
+
+        foreach(int[] coord in towerCoords) {
+            GameObject tower = Instantiate(tower_prefab, new Vector3(coord[0], 1, coord[1]), Quaternion.identity);
+            tower.AddComponent<MeshCollider>();
+            tower.name = "TOWER";
+        }
+
         for (float x = bounds.min[0]+1; x < bounds.max[0]; x += bounds.size[0] / (float)width - 1e-6f, w++)
         {
             int l = 0;
@@ -339,79 +467,11 @@ public class LevelGenerator : MonoBehaviour
                     trees.Add(tree_prefab_3);
                     int index = rnd.Next(trees.Count);
                     GameObject curr_tree = trees[index];
+                    if(curr_tree == tree_prefab_2 || curr_tree == tree_prefab_3)
+                        y = 1f;
                     GameObject tree = Instantiate(curr_tree, new Vector3(x, y, z), Quaternion.identity);
                     tree.AddComponent<BoxCollider>();
                     tree.name = "TREE";
-                }
-            }
-        }
-    }
-
-    private int placeLetters(List<TileType>[,] grid) {
-        System.Random random = new System.Random();
-        int index = random.Next(wordBank.Count);
-        string word = wordBank[index];
-    
-        foreach (char c in word)
-        {
-            while (true) {
-                System.Random rnd = new System.Random();
-                int wr = rnd.Next(1, width - 1);
-                int lr = rnd.Next(1, length - 1);
-
-                if (grid[wr, lr] == null || grid[wr, lr][0] == TileType.FLOOR)
-                {
-                    if(!objectives.ContainsKey(Char.ToUpper(c))) {
-                        objectives.Add(Char.ToUpper(c), new List<int[]>());
-                    }
-                    grid[wr, lr] = new List<TileType> { TileType.LETTER };
-                    objectives[Char.ToUpper(c)].Add(new int[2] { wr, lr });
-                    destinations.Add(new int[2] { wr, lr });
-                    break;
-                }
-            }
-        }
-
-        return word.Length;
-    }
-
-    private void placeDeadends(List<TileType>[,] grid, int x) {
-        System.Random rnd = new System.Random();
-        for(int i=0; i<2*x; i++) {
-            int random = rnd.Next(0, 2);
-            int wr;
-            int lr;
-            if(random == 0) {
-                wr = rnd.Next(1, width-1);
-                int lr_i = rnd.Next(0, 2);
-                if(lr_i == 0) {
-                    lr = 0;
-                } else {
-                    lr = length-1;
-                }
-            } else {
-                lr = rnd.Next(1, length-1);
-                int wr_i = rnd.Next(0, 2);
-                if(wr_i == 0) {
-                    wr = 0;
-                } else {
-                    wr = width-1;
-                }
-            }
-            grid[wr, lr] = new List<TileType> { TileType.DEADEND };
-            destinations.Add(new int[2] { wr, lr });
-        }
-
-        for(int i=0; i<x/2; i++) {
-            while (true) {
-                int wr = rnd.Next(1, width - 1);
-                int lr = rnd.Next(1, length - 1);
-
-                if (grid[wr, lr] == null || grid[wr, lr][0] == TileType.FLOOR)
-                {                 
-                    grid[wr, lr] = new List<TileType> { TileType.DEADEND };
-                    destinations.Add(new int[2] { wr, lr });
-                    break;
                 }
             }
         }
@@ -435,7 +495,7 @@ public class LevelGenerator : MonoBehaviour
         }
     }
 
-    private void createBorder(List<TileType>[,] grid) {
+    private void createBorder() {
         for (int w = 0; w < width; w++) {
             for (int l = 0; l < length; l++) {
                 if (w == 0 || l == 0 || w == width - 1 || l == length - 1)
