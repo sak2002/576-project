@@ -9048,8 +9048,8 @@ MonoBehaviour:
   tree_prefab_3: {fileID: 1685073300064356, guid: eb322b3f7ad50984197dced1b53b11ee, type: 3}
   heart_prefab: {fileID: 1781561378815422, guid: 0f6fbf6ba5b56aa4ba01adc51ab77ce6, type: 3}
   trap_prefab: {fileID: 1498791207746926, guid: b58fdf950bf832348af4bfaa2fd9f743, type: 3}
-  spike_prefab: {fileID: 1837317425425208, guid: 3aec22b5d3f3c2947bb81040b56e5f96, type: 3}
-  slime_prefab: {fileID: 1090219386143568, guid: a817c29ea6847604bb2c6c51d9a74bf1, type: 3}
+  spike_prefab: {fileID: 1251284850171644772, guid: f83916e4743e54bd1b783ad4ba325dd6, type: 3}
+  slime_prefab: {fileID: 7500718194913807695, guid: b54531c7a788245bfb1324f96c9a0189, type: 3}
   tower_prefab: {fileID: 1549123707190546, guid: e7775214e5f7b1f469df26ce7b30e009, type: 3}
 --- !u!65 &334130140
 BoxCollider:
