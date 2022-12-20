@@ -18,4 +18,11 @@ public class HeartScript : MonoBehaviour
     {
         transform.Rotate (Vector3.up * rotationSpeed * Time.deltaTime, Space.World);
     }
+
+    void OnCollisionEnter(Collision e) {
+        // Debug.Log(e.gameObject.name);
+        if(e.gameObject.name.StartsWith("player")) {
+            Destroy(gameObject);
+        }
+    }
 }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-enum TileType
+public enum TileType
 {
     WALL = 0,
     FLOOR = 1,
@@ -32,6 +32,7 @@ public class LevelGenerator : MonoBehaviour
     public GameObject spike_prefab;
     public GameObject slime_prefab;
     public GameObject tower_prefab;
+    public GameObject player_prefab;
     private int width;
     private int length;
     private List<string> wordBank = new List<string>{ "Apple", "Game", "Word"};
@@ -41,21 +42,22 @@ public class LevelGenerator : MonoBehaviour
     List<int[]> npcDestinations;
     List<int[]> towerCoords;
     Dictionary<char, List<int[]>> objectives;
-    List<TileType>[,] grid;
+    public List<TileType>[,] grid;
     int wStart;
     int lStart;
 
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("here");
+        // Debug.Log("here");
         bounds = GetComponent<Collider>().bounds;
         Debug.Log(bounds.min.x);
         Debug.Log(bounds.max.x);
-        Debug.Log(bounds.min.y);
-        Debug.Log(bounds.max.y);
-        Debug.Log(bounds.min.z);
-        Debug.Log(bounds.max.z);
+        Debug.Log(bounds.size.x);
+        // Debug.Log(bounds.min.y);
+        // Debug.Log(bounds.max.y);
+        // Debug.Log(bounds.min.z);
+        // Debug.Log(bounds.max.z);
 
         length = 24;
         width = 24;
@@ -115,25 +117,6 @@ public class LevelGenerator : MonoBehaviour
                 connect(wStart, lStart, dest[0], dest[1]);
             }
 
-
-            // randomly connect two deadends/letters
-
-            // place traps and health
-
-            // randomly place the x letters
-            // int letters = placeLetters(grid);
-            // // randomly place the x deadends
-            // placeDeadends(grid, letters);
-            // placeHealth(letters);
-            // createMaze(grid);
-            // placeTraps(letters);
-            // placeNPCs(letters);
-            // success = checkConstraints();
-            // if(!success) {
-            //     grid = new List<TileType>[width, length];
-            //     objectives = new Dictionary<char, List<int[]>>();
-            //     destinations = new List<int[]>();
-            // }
             success = true;
             i++;
         }
@@ -143,7 +126,7 @@ public class LevelGenerator : MonoBehaviour
             for(int j=0; j<width; j++) {
                 s = s + " " + (grid[k, j][0]).ToString()[0];
             }
-            Debug.Log(s);
+            // Debug.Log(s);
         }
 
         renderLevel(grid);
@@ -185,7 +168,7 @@ public class LevelGenerator : MonoBehaviour
         int y = lstart;
 
         while(x != wend || y != lend) {
-            Debug.Log(x + " " + y);
+            // Debug.Log(x + " " + y);
             int choice = rnd.Next(0, 2);
             if(choice == 0) {
                 // go in w
@@ -273,7 +256,7 @@ public class LevelGenerator : MonoBehaviour
         System.Random rnd = new System.Random();
         int dist = 5;
         for(int i=0; i<x; i++) {
-            Debug.Log("placing npc");
+            // Debug.Log("placing npc");
             while (true) {
                 int wr = rnd.Next(2, width - 2);
                 int lr = rnd.Next(2, length - 2);
@@ -292,7 +275,7 @@ public class LevelGenerator : MonoBehaviour
     private void placeDeadends(int x) {
         System.Random rnd = new System.Random();
         for(int i=0; i<x/2; i++) {
-            Debug.Log("placing deadend");
+            // Debug.Log("placing deadend");
             while (true) {
                 int wr = rnd.Next(2, width - 2);
                 int lr = rnd.Next(2, length - 2);
@@ -315,7 +298,7 @@ public class LevelGenerator : MonoBehaviour
                 continue;
             else {
                 if(Math.Abs((start[0]-w) + (start[1]-l)) < dist) {
-                    Debug.Log("not valid");                        
+                    // Debug.Log("not valid");                        
                     return false;
                 }
             }
@@ -380,7 +363,7 @@ public class LevelGenerator : MonoBehaviour
     private void placeTraps(int x) {
         System.Random rnd = new System.Random();
         for(int i=0; i<x; i++) {
-            Debug.Log("placing trap");
+            // Debug.Log("placing trap");
             while (true) {
                 int wr = rnd.Next(1, width - 1);
                 int lr = rnd.Next(1, length - 1);
@@ -404,12 +387,21 @@ public class LevelGenerator : MonoBehaviour
             tower.name = "TOWER";
         }
 
-        for (float x = bounds.min[0]+1; x < bounds.max[0]; x += bounds.size[0] / (float)width - 1e-6f, w++)
+        // float xStart = wStart * (bounds.size[0] / (float)width);
+        // float zStart = lStart * (bounds.size[2] / (float)length);
+
+        float xStart = bounds.min[0] + (float)wStart * (bounds.size[0] / (float)width);
+        float zStart = bounds.min[2] + (float)lStart * (bounds.size[2] / (float)length);
+
+        GameObject player = Instantiate(player_prefab, new Vector3(xStart, 1.0f, zStart), Quaternion.identity);
+        player.name = "player";
+
+        for (float x = bounds.min[0]+1; x < bounds.max[0]; x += bounds.size[0] / (float)width, w++)
         {
             int l = 0;
-            for (float z = bounds.min[2]+1; z < bounds.max[2]; z += bounds.size[2] / (float)length - 1e-6f, l++)
+            for (float z = bounds.min[2]+1; z < bounds.max[2]; z += bounds.size[2] / (float)length, l++)
             {
-                // Debug.Log(w + " " + l);
+                Debug.Log(w + " " + l + " " + x + " " + z);
                 if ((w >= width) || (l >= width))
                     continue;
 
@@ -456,7 +448,10 @@ public class LevelGenerator : MonoBehaviour
                     int index = rnd.Next(npcList.Count);
                     GameObject curr_npc = npcList[index];
                     GameObject npc = Instantiate(curr_npc, new Vector3(x, 1f, z), Quaternion.identity);
-                    npc.name = "NPC";
+                    if(curr_npc == slime_prefab)
+                        npc.name = "NPC_SLIME";
+                    else
+                        npc.name = "NPC_SPIKE";
                 }
                 else if (grid[w, l][0] == TileType.MAZE_WALL)
                 {
