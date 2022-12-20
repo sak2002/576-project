@@ -32,6 +32,7 @@ public class LevelGenerator : MonoBehaviour
     public GameObject spike_prefab;
     public GameObject slime_prefab;
     public GameObject tower_prefab;
+    public GameObject player_prefab;
     private int width;
     private int length;
     private List<string> wordBank = new List<string>{ "Apple", "Game", "Word"};
@@ -385,6 +386,15 @@ public class LevelGenerator : MonoBehaviour
             tower.AddComponent<MeshCollider>();
             tower.name = "TOWER";
         }
+
+        // float xStart = wStart * (bounds.size[0] / (float)width);
+        // float zStart = lStart * (bounds.size[2] / (float)length);
+
+        float xStart = bounds.min[0] + (float)wStart * (bounds.size[0] / (float)width);
+        float zStart = bounds.min[2] + (float)lStart * (bounds.size[2] / (float)length);
+
+        GameObject player = Instantiate(player_prefab, new Vector3(xStart, 1.0f, zStart), Quaternion.identity);
+        player.name = "player";
 
         for (float x = bounds.min[0]+1; x < bounds.max[0]; x += bounds.size[0] / (float)width, w++)
         {

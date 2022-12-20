@@ -21,13 +21,15 @@ public class SpikeMovement : MonoBehaviour
     float goal_x;
     float goal_y;
     float speed;
+    float attack_speed;
+    private GameObject target;
 
 
     // Start is called before the first frame update
     void Start()
     {
         gridObj = GameObject.Find("16x16");
-        Debug.Log(gridObj);
+        // Debug.Log(gridObj);
         grid = gridObj.GetComponent<LevelGenerator>().grid;
         transform = GetComponent<Transform>();
 
@@ -54,11 +56,92 @@ public class SpikeMovement : MonoBehaviour
         }
 
         speed = 0.5f;
+        attack_speed = 1f;
     }
 
     // Update is called once per frame
     void Update()
     {
+        // check if player is in front
+        target = GameObject.Find("player");
+
+        if(target != null) {
+            Vector3 target_pos = target.GetComponent<BoxCollider>().bounds.center;
+            Vector3 current_pos = transform.position;
+            current_pos.y = 2;
+            Vector3 dir = target_pos-current_pos;
+
+            // Debug.Log("target pos is " + target_pos);
+            // Debug.Log("my pos is " + current_pos);
+            // Debug.Log("angle is " + Vector3.Angle(transform.forward, dir));
+            // Debug.Log("Disctance is " + dir.magnitude);
+
+
+            Debug.DrawRay(current_pos, dir, Color.red);
+
+            if(inLineOfSight(dir, current_pos) && inFront(dir) && inProximity(target_pos)) {
+                // Debug.Log("Draw");
+                // Debug.DrawRay(current_pos, dir, Color.green);
+                Vector3 dir_hat = new Vector3(target_pos.x - current_pos.x, 0, target_pos.z - current_pos.z);
+                dir_hat = dir_hat/dir_hat.magnitude;
+                transform.position += dir_hat * attack_speed * Time.deltaTime;
+                transform.forward = dir_hat;
+                x = transform.position.x;
+                y = transform.position.z;
+            } else {
+                moveRandomly();
+            }
+
+            
+
+            // Debug.Log(target_pos + " " + current_pos);
+
+            // Vector3 dir = target_pos - current_pos;
+            // dir = dir / dir.magnitude;
+
+            // if()
+        } else {
+        // else move randomly
+            moveRandomly();
+        }
+    }
+
+    private bool inFront(Vector3 dir) {
+        Vector3 fwd = transform.forward;
+        fwd.y = dir.y;
+        float angle = Vector3.Angle(transform.forward, dir);
+        // Debug.Log(angle);
+        if(Math.Abs(angle) < 20) {
+             
+            return true;
+        }
+        return false;
+    }
+
+    private bool inProximity(Vector3 target_pos) {
+        Vector3 dir = target_pos - transform.position;
+        // Debug.Log("magd " + dir.magnitude);
+        if(dir.magnitude < 4) {
+            return true;
+        }
+        return false;
+    }
+
+    private bool inLineOfSight(Vector3 dir, Vector3 current_pos) {
+        RaycastHit hit;
+        if(Physics.Raycast(current_pos, dir, out hit, Mathf.Infinity)) {
+            // Debug.Log(hit.transform.name);
+            // // Debug.Log(current_pos);
+            // Debug.DrawRay(current_pos, dir, Color.green);
+            if(hit.transform.name == "player") {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void moveRandomly() {
+        // Debug.Log("herhe");
         System.Random random = new System.Random();
         if(steps > 10) {
             // Debug.Log("Stuck");
@@ -112,6 +195,6 @@ public class SpikeMovement : MonoBehaviour
             x = transform.position.x;
             y = transform.position.z;
             // Debug.Log("Iteration Currently at " + x + " " + y);
-        }        
+        }
     }
 }
