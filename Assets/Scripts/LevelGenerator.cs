@@ -16,6 +16,7 @@ public enum TileType
     MAZE_WALL = 7,
     NPC = 8,
     TOWER = 9,
+    SWORD = 10,
 }
 
 public class LevelGenerator : MonoBehaviour
@@ -33,6 +34,8 @@ public class LevelGenerator : MonoBehaviour
     public GameObject slime_prefab;
     public GameObject tower_prefab;
     public GameObject player_prefab;
+    public GameObject sword_prefab;
+    public string word;
     private int width;
     private int length;
     private List<string> wordBank = new List<string>{ "Apple", "Game", "Word"};
@@ -41,7 +44,7 @@ public class LevelGenerator : MonoBehaviour
     List<int[]> dndDestinations;
     List<int[]> npcDestinations;
     List<int[]> towerCoords;
-    Dictionary<char, List<int[]>> objectives;
+    public Dictionary<char, List<int[]>> objectives;
     public List<TileType>[,] grid;
     int wStart;
     int lStart;
@@ -51,9 +54,9 @@ public class LevelGenerator : MonoBehaviour
     {
         // Debug.Log("here");
         bounds = GetComponent<Collider>().bounds;
-        Debug.Log(bounds.min.x);
-        Debug.Log(bounds.max.x);
-        Debug.Log(bounds.size.x);
+        // Debug.Log(bounds.min.x);
+        // Debug.Log(bounds.max.x);
+        // Debug.Log(bounds.size.x);
         // Debug.Log(bounds.min.y);
         // Debug.Log(bounds.max.y);
         // Debug.Log(bounds.min.z);
@@ -78,7 +81,7 @@ public class LevelGenerator : MonoBehaviour
             createBorder();
 
             // pick word
-            string word = pickWord();
+            word = pickWord();
             int numLetters = word.Length;
 
             // set corners as tower tiles
@@ -93,6 +96,8 @@ public class LevelGenerator : MonoBehaviour
             placeWord(word);
             placeNPCs(numLetters);
             placeDeadends(numLetters);
+
+            placeSwords();
 
             // place 1 dead on each wall
 
@@ -191,13 +196,13 @@ public class LevelGenerator : MonoBehaviour
             steps++;
             
             int prob_trap = rnd.Next(0, 11);
-            if(!trap_placed && prob_trap > 7 && steps > 4 && grid[x, y][0] == TileType.FLOOR) {
+            if(!trap_placed && prob_trap > 7 && steps > 6 && grid[x, y][0] == TileType.FLOOR) {
                 grid[x, y] = new List<TileType>{TileType.TRAP};
                 trap_placed = true;
             }
             
             int prob_health = rnd.Next(0, 11);
-            if(trap_placed && !health_placed && prob_health > 4 && steps > 6 && grid[x, y][0] == TileType.FLOOR) {
+            if(trap_placed && !health_placed && prob_health > 4 && steps > 9 && grid[x, y][0] == TileType.FLOOR) {
                 grid[x, y] = new List<TileType>{TileType.HEALTH};
                 health_placed = true;
             }
@@ -360,9 +365,9 @@ public class LevelGenerator : MonoBehaviour
         }
     }
 
-    private void placeTraps(int x) {
+    private void placeSwords() {
         System.Random rnd = new System.Random();
-        for(int i=0; i<x; i++) {
+        for(int i=0; i<2; i++) {
             // Debug.Log("placing trap");
             while (true) {
                 int wr = rnd.Next(1, width - 1);
@@ -370,7 +375,7 @@ public class LevelGenerator : MonoBehaviour
 
                 if (grid[wr, lr] == null || grid[wr, lr][0] == TileType.FLOOR)
                 {                 
-                    grid[wr, lr] = new List<TileType> { TileType.TRAP };
+                    grid[wr, lr] = new List<TileType> { TileType.SWORD };
                     break;
                 }
             }
@@ -401,7 +406,7 @@ public class LevelGenerator : MonoBehaviour
             int l = 0;
             for (float z = bounds.min[2]+1; z < bounds.max[2]; z += bounds.size[2] / (float)length, l++)
             {
-                Debug.Log(w + " " + l + " " + x + " " + z);
+                // Debug.Log(w + " " + l + " " + x + " " + z);
                 if ((w >= width) || (l >= width))
                     continue;
 
@@ -418,7 +423,7 @@ public class LevelGenerator : MonoBehaviour
                                 current = c;
                                 GameObject prefab = generateBoxObject(current);
                                 GameObject letter = Instantiate(box_prefab, new Vector3(x, y, z), Quaternion.identity);
-                                letter.name = "Letter_" + current;
+                                letter.name = "LETTER_" + current;
                                 break;
                             }
                         }
@@ -439,6 +444,11 @@ public class LevelGenerator : MonoBehaviour
                 {
                     GameObject trap = Instantiate(trap_prefab, new Vector3(x, 1f, z), Quaternion.identity);
                     trap.name = "TRAP";
+                }
+                else if (grid[w, l][0] == TileType.SWORD)
+                {
+                    GameObject sword = Instantiate(sword_prefab, new Vector3(x, 1.8f, z), Quaternion.identity);
+                    sword.name = "SWORD";
                 }
                 else if (grid[w, l][0] == TileType.NPC)
                 {
@@ -472,23 +482,23 @@ public class LevelGenerator : MonoBehaviour
         }
     }
 
-    private void placeHealth(int x) {
-        System.Random rnd = new System.Random();
-        for(int i=0; i<x; i++) {
-            Debug.Log("placing heart");
-            while (true) {
-                int wr = rnd.Next(1, width - 1);
-                int lr = rnd.Next(1, length - 1);
+    // private void placeHealth(int x) {
+    //     System.Random rnd = new System.Random();
+    //     for(int i=0; i<x; i++) {
+    //         Debug.Log("placing heart");
+    //         while (true) {
+    //             int wr = rnd.Next(1, width - 1);
+    //             int lr = rnd.Next(1, length - 1);
 
-                if (grid[wr, lr] == null || grid[wr, lr][0] == TileType.FLOOR)
-                {                 
-                    grid[wr, lr] = new List<TileType> { TileType.HEALTH };
-                    destinations.Add(new int[2] { wr, lr });
-                    break;
-                }
-            }
-        }
-    }
+    //             if (grid[wr, lr] == null || grid[wr, lr][0] == TileType.FLOOR)
+    //             {                 
+    //                 grid[wr, lr] = new List<TileType> { TileType.HEALTH };
+    //                 destinations.Add(new int[2] { wr, lr });
+    //                 break;
+    //             }
+    //         }
+    //     }
+    // }
 
     private void createBorder() {
         for (int w = 0; w < width; w++) {

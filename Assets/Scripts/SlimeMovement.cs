@@ -114,4 +114,10 @@ public class SlimeMovement : MonoBehaviour
             // Debug.Log("Iteration Currently at " + x + " " + y);
         }        
     }
+
+    void OnCollisionEnter(Collision e) {
+        if(e.gameObject.name == "player") {
+            Debug.Log("collide");
+        }
+    }
 }

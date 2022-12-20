@@ -15,14 +15,24 @@ public class Mousey : MonoBehaviour
     public int num_lives;
     public bool has_won;
     public bool dead;
+    public bool hit;
     public bool immune;
     public float immune_timer;
+    public bool sword;
+    public float sword_timer;
+    private GameObject gridObj;
+    Dictionary<char, List<int[]>> objectives;
+    Dictionary<char, int> wordList;
+
 
     // Start is called before the first frame update
     void Start()
     {
         animation_controller = GetComponent<Animator>();
         character_controller = GetComponent<CharacterController>();
+        gridObj = GameObject.Find("16x16");
+        objectives = gridObj.GetComponent<LevelGenerator>().objectives;
+        wordList = new Dictionary<char, int>();
         movement_direction = new Vector3(0.0f, 0.0f, 0.0f);
         walking_velocity = 1.5f;
         velocity = 0.0f;
@@ -30,21 +40,59 @@ public class Mousey : MonoBehaviour
         dead = false;
         has_won = false;
         immune = false;
+        hit = false;
         immune_timer = 0.0f;
+        sword = false;
+        sword_timer = 0.0f;
+        buildLetterList();
     }
 
     // Update is called once per frame
     void Update()
     {
+        
+        if(num_lives < 0 && !has_won && !dead) {
+            animation_controller.SetInteger("state", 7);
+            Debug.Log("DEEEAAADD");
+            dead = true;
+            return;
+        }
+
+        if(dead) {
+            return;
+        }
+
+        if(hasWon() && !has_won) {
+            Debug.Log("You Won!");
+            has_won = true;
+            return;
+        }
+
+        if(has_won) {
+            return;
+        }
+
+        // if(hit) {
+        //     Debug.Log("inside hit");
+        //     animation_controller.SetInteger("state", 5);
+        //     hit = false;
+        // }
+
         if(immune) {
-            if(immune_timer == 0) {
-                animation_controller.SetInteger("state", 5);
-            }
             immune_timer += Time.deltaTime;
-            Debug.Log(immune_timer);
+            // Debug.Log((int)immune_timer);
             if(immune_timer > 10) {
                 immune = false;
                 immune_timer = 0;
+            }
+        }
+
+        if(sword) {
+            sword_timer += Time.deltaTime;
+            // Debug.Log(sword_timer);
+            if(sword_timer > 10) {
+                sword = false;
+                sword_timer = 0;
             }
         }
 
@@ -109,10 +157,59 @@ public class Mousey : MonoBehaviour
         if(e.gameObject.name.StartsWith("HEART")) {
             num_lives++;
             Debug.Log(num_lives);
-        } else if (e.gameObject.name.StartsWith("NPC") && !immune) {
-            num_lives -= 1;
-            immune = true;
+        } else if (e.gameObject.name.StartsWith("NPC_SLIME")) {
+            if(sword) {
+                Destroy(e.gameObject);
+            } else {
+                if(!immune) {
+                    hit = true;
+                    num_lives -= 1;
+                    Debug.Log(num_lives);
+                    immune = true;
+                }
+            }
+        } else if (e.gameObject.name.StartsWith("NPC_SPIKE")) {
+            if(sword) {
+                Destroy(e.gameObject);
+            } else {
+                if(!immune) {
+                    hit = true;
+                    num_lives -= 2;
+                    Debug.Log(num_lives);
+                    immune = true;
+                }
+            }
+        } else if (e.gameObject.name.StartsWith("LETTER")) {
+            char c = e.gameObject.name[7];
+            Debug.Log(c);
+            wordList[c] = wordList[c] - 1;
+            Destroy(e.gameObject);
+        } else if (e.gameObject.name.StartsWith("SWORD")) {
+            sword = true;
+            Destroy(e.gameObject);
+        } else if (e.gameObject.name.StartsWith("Spikes") || e.gameObject.name.StartsWith("Spear")) {
+            if(!immune) {
+                hit = true;
+                num_lives -= 1;
+                Debug.Log(num_lives);
+                Debug.Log("hitting spikes");
+                immune = true;
+            }
         }
-        
+    }
+
+    public void buildLetterList() {
+        foreach(char c in objectives.Keys) {
+            wordList.Add(c, objectives[c].Count);
+        }
+    }
+
+    public bool hasWon() {
+        foreach(char c in wordList.Keys) {
+            if(wordList[c] > 0) {
+                return false;
+            }
+        }
+        return true;
     }
 }

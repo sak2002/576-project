@@ -23,6 +23,7 @@ public class SpikeMovement : MonoBehaviour
     float speed;
     float attack_speed;
     private GameObject target;
+    private bool chase;
 
 
     // Start is called before the first frame update
@@ -54,6 +55,7 @@ public class SpikeMovement : MonoBehaviour
                 visited[w,l] = false;
             }
         }
+        chase = true;
 
         speed = 0.5f;
         attack_speed = 1f;
@@ -64,6 +66,9 @@ public class SpikeMovement : MonoBehaviour
     {
         // check if player is in front
         target = GameObject.Find("player");
+        if(!chase && steps > 4) {
+            chase = true;
+        }
 
         if(target != null) {
             Vector3 target_pos = target.GetComponent<BoxCollider>().bounds.center;
@@ -79,16 +84,18 @@ public class SpikeMovement : MonoBehaviour
 
             Debug.DrawRay(current_pos, dir, Color.red);
 
-            if(inLineOfSight(dir, current_pos) && inFront(dir) && inProximity(target_pos)) {
+            if(chase && inLineOfSight(dir, current_pos) && inFront(dir) && inProximity(target_pos)) {
                 // Debug.Log("Draw");
                 // Debug.DrawRay(current_pos, dir, Color.green);
                 Vector3 dir_hat = new Vector3(target_pos.x - current_pos.x, 0, target_pos.z - current_pos.z);
-                dir_hat = dir_hat/dir_hat.magnitude;
+                dir_hat = dir_hat / dir_hat.magnitude;
+                // Debug.Log(dir_hat);
                 transform.position += dir_hat * attack_speed * Time.deltaTime;
                 transform.forward = dir_hat;
                 x = transform.position.x;
                 y = transform.position.z;
             } else {
+                // Debug.Log("Not chasing");
                 moveRandomly();
             }
 
@@ -111,7 +118,7 @@ public class SpikeMovement : MonoBehaviour
         fwd.y = dir.y;
         float angle = Vector3.Angle(transform.forward, dir);
         // Debug.Log(angle);
-        if(Math.Abs(angle) < 20) {
+        if(Math.Abs(angle) < 90) {
              
             return true;
         }
@@ -195,6 +202,13 @@ public class SpikeMovement : MonoBehaviour
             x = transform.position.x;
             y = transform.position.z;
             // Debug.Log("Iteration Currently at " + x + " " + y);
+        }
+    }
+
+    void OnCollisionEnter(Collision e) {
+        if(e.gameObject.name == "player") {
+            Debug.Log("collide");
+            chase = true;
         }
     }
 }
