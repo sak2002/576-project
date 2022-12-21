@@ -24,7 +24,7 @@ public class Catapult : MonoBehaviour
         target = GameObject.Find("player");
         if (weapon_prefab == null)
             Debug.LogError("Error: could not find the weapon prefab in the project! Did you delete/move the prefab from your project?");
-        shooting_delay = 1.0f;  
+        shooting_delay = 10.0f;  
         weapon_velocity = 5.0f;
         weapon_starting_pos = new Vector3(0.0f, 0.0f, 0.0f);
         target_in_range = false;

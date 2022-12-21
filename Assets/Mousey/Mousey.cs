@@ -31,6 +31,7 @@ public class Mousey : MonoBehaviour
     Dictionary<char, List<int[]>> objectives;
     Dictionary<char, int> wordList;
     string word;
+    bool idle_hack = true;
 
 
     // Start is called before the first frame update
@@ -161,7 +162,14 @@ public class Mousey : MonoBehaviour
             velocity = -1.0f;
         } else {
             animation_controller.SetInteger("state", 0);
-            velocity = 0.0f;
+            if(idle_hack) {
+                velocity = 0.001f;
+                idle_hack = !idle_hack;
+            }
+            else {
+                velocity = -0.001f;
+                idle_hack = !idle_hack;
+            }
         }
 
         if (Input.GetKey(KeyCode.LeftArrow)){
@@ -216,6 +224,15 @@ public class Mousey : MonoBehaviour
             sword = true;
             swordUI.SetActive(true);
             Destroy(e.gameObject);
+        } else if (e.gameObject.name.StartsWith("Weapon") || e.gameObject.name.StartsWith("Rock")) {
+            if(!immune) {
+                hit = true;
+                num_lives -= 2;
+                Debug.Log(num_lives);
+                Debug.Log("hitting rocks");
+                immune = true;
+                shieldUI.SetActive(true);
+            }
         } else if (e.gameObject.name.StartsWith("Spikes") || e.gameObject.name.StartsWith("Spear")) {
             if(!immune) {
                 hit = true;
