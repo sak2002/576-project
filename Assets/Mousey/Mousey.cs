@@ -82,7 +82,7 @@ public class Mousey : MonoBehaviour
         slider.value = num_lives;
         
         if(num_lives < 0 && !has_won && !dead) {
-            animation_controller.SetInteger("state", 7);
+            animation_controller.SetInteger("state", 6);
             Debug.Log("DEEEAAADD");
             dead = true;
             return;
@@ -104,12 +104,6 @@ public class Mousey : MonoBehaviour
             return;
         }
 
-        // if(hit) {
-        //     Debug.Log("inside hit");
-        //     animation_controller.SetInteger("state", 5);
-        //     hit = false;
-        // }
-
         if(immune) {
             immune_timer += Time.deltaTime;
             if(immune_timer > 10) {
@@ -126,16 +120,6 @@ public class Mousey : MonoBehaviour
                 swordUI.SetActive(false);
                 sword_timer = 0;
             }
-        }
-
-        // Debug.Log("here");
-        if(num_lives == 0 && dead == false && has_won == false) {
-            animation_controller.SetInteger("state", 6);
-            // Debug.Log("state 6");
-            if(!dead)
-                time_of_death = Time.time;
-            dead = true;
-            return;
         }
 
         if(Input.GetKey(KeyCode.UpArrow)) {
