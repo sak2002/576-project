@@ -17,12 +17,15 @@ public class Catapult : MonoBehaviour
     private float min_dist = 10.0f;
     private float max_dist = 30.0f;
     private Animator animation_controller;
+    AudioSource shootAudioSource;
+    public AudioClip shootAudio;
     public bool throwing = false;
     
 
     // Start is called before the first frame update
     void Start()
     {
+        shootAudioSource = GetComponent<AudioSource>();
         target = GameObject.Find("player");
         if (weapon_prefab == null)
             Debug.LogError("Error: could not find the weapon prefab in the project! Did you delete/move the prefab from your project?");
@@ -80,6 +83,7 @@ public class Catapult : MonoBehaviour
                 initial_velocity.y = 0;
 
                 // Now that we have our initial velocities, let us initiate the attack
+                shootAudioSource.PlayOneShot(shootAudio);
                 GameObject new_object = Instantiate(weapon_prefab, weapon_starting_pos, Quaternion.identity);
                 new_object.GetComponent<Rock>().velocity = initial_velocity;
                 new_object.GetComponent<Rock>().birth_time = Time.time;
