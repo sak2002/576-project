@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028305, g: 0.22571313, b: 0.3069213, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -9297,7 +9297,7 @@ MonoBehaviour:
   trap_prefab: {fileID: 1498791207746926, guid: b58fdf950bf832348af4bfaa2fd9f743, type: 3}
   spike_prefab: {fileID: 1251284850171644772, guid: f83916e4743e54bd1b783ad4ba325dd6, type: 3}
   slime_prefab: {fileID: 7500718194913807695, guid: b54531c7a788245bfb1324f96c9a0189, type: 3}
-  tower_prefab: {fileID: 1549123707190546, guid: e7775214e5f7b1f469df26ce7b30e009, type: 3}
+  tower_prefab: {fileID: 1170957879141004981, guid: 62a80bb960605ae45b73c405f2d50f13, type: 3}
   player_prefab: {fileID: 2178263900775656762, guid: 12f88392c33d448ce96123f4937bc84d, type: 3}
   sword_prefab: {fileID: 1037343330875508, guid: eb20313e46ca14d4ab638ede406702d4, type: 3}
   word: 
