@@ -99,6 +99,7 @@ public class Mousey : MonoBehaviour
         }
 
         if(dead) {
+            mouseyAudioWalking.enabled = false;
             canvas.GetComponent<WinMenuScript>().OutGameMenuLose();
             return;
         }
@@ -110,6 +111,7 @@ public class Mousey : MonoBehaviour
         }
 
         if(has_won) {
+            mouseyAudioWalking.enabled = false;
             canvas.GetComponent<WinMenuScript>().OutGameMenuWin(word, "nbfhjgvhjgghjfv");
             return;
         }
