@@ -20,13 +20,14 @@ public class Catapult : MonoBehaviour
     AudioSource shootAudioSource;
     public AudioClip shootAudio;
     public bool throwing = false;
+    public bool game_end;
     
 
     // Start is called before the first frame update
     void Start()
     {
         shootAudioSource = GetComponent<AudioSource>();
-        target = GameObject.Find("player");
+        target = GameObject.Find("player");        
         if (weapon_prefab == null)
             Debug.LogError("Error: could not find the weapon prefab in the project! Did you delete/move the prefab from your project?");
         shooting_delay = 3.0f;  
@@ -40,6 +41,7 @@ public class Catapult : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        game_end = target.GetComponent<Mousey>().has_won;
         if (target == null)
             Debug.LogError("Error: could not find the game character 'player' in the scene. Did you delete the model player from your scene?");
         
@@ -63,7 +65,7 @@ public class Catapult : MonoBehaviour
     {
         while (true)
         {            
-            if(target_in_range) {
+            if(target_in_range && !game_end) {
                 // Defining the catapult object
                 GameObject catapult_sphere = transform.Find("Sphere").gameObject;
                 
