@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1170957879141004978}
   m_Layer: 0
-  m_Name: Catapult
+  m_Name: CatapultTower
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -42,7 +42,23 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1368493319012508, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_Name
-      value: ForestCatapult_Blue
+      value: Catapult
+      objectReference: {fileID: 0}
+    - target: {fileID: 1482438998348108, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
+      propertyPath: m_Name
+      value: CatapultArm
+      objectReference: {fileID: 0}
+    - target: {fileID: 1528351437569502, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
+      propertyPath: m_Name
+      value: CatapultWheels
+      objectReference: {fileID: 0}
+    - target: {fileID: 1602130325756856, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
+      propertyPath: m_Name
+      value: CatapultBase
+      objectReference: {fileID: 0}
+    - target: {fileID: 1769355802952226, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
+      propertyPath: m_Name
+      value: CatapultArmBase
       objectReference: {fileID: 0}
     - target: {fileID: 4292602859152606, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalRotation.w
@@ -66,51 +82,51 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4535023515062960, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.91515976
+      value: -0.3545362
       objectReference: {fileID: 0}
     - target: {fileID: 4535023515062960, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.008916422
+      value: 0.012235024
       objectReference: {fileID: 0}
     - target: {fileID: 4535023515062960, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.40215868
+      value: -0.93464065
       objectReference: {fileID: 0}
     - target: {fileID: 4535023515062960, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.02591354
+      value: -0.024521789
       objectReference: {fileID: 0}
     - target: {fileID: 4535023515062960, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: -0.259
+      value: -3.125
       objectReference: {fileID: 0}
     - target: {fileID: 4535023515062960, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 47.438
+      value: -221.538
       objectReference: {fileID: 0}
     - target: {fileID: 4535023515062960, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 3.13
+      value: -0.315
       objectReference: {fileID: 0}
     - target: {fileID: 4670754590690618, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.97534287
+      value: 0.8126901
       objectReference: {fileID: 0}
     - target: {fileID: 4670754590690618, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.22069488
+      value: 0.5826962
       objectReference: {fileID: 0}
     - target: {fileID: 4670754590690618, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.000000029802319
+      value: -0.000000089406974
       objectReference: {fileID: 0}
     - target: {fileID: 4670754590690618, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.0000000372529
+      value: -0.00000019185246
       objectReference: {fileID: 0}
     - target: {fileID: 4670754590690618, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 25.5
+      value: 71.281
       objectReference: {fileID: 0}
     - target: {fileID: 4670754590690618, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -120,27 +136,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4477898212411427429, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
+      propertyPath: m_Name
+      value: CatapultSphere
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
---- !u!1 &1172724553136766582 stripped
+--- !u!1 &1172289813830565064 stripped
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 1769355802952226, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
+  m_CorrespondingSourceObject: {fileID: 1368493319012508, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
   m_PrefabInstance: {fileID: 1170957879541611604}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7421693267076033146
+--- !u!114 &3545381038728185177
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1172724553136766582}
+  m_GameObject: {fileID: 1172289813830565064}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aa551ea756734bb40aaa057438a34299, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 1
-  weapon_prefab: {fileID: 0}
+  weapon_prefab: {fileID: 2577188519649253250, guid: 85b1ce1644cc90648bf12c0121d11607, type: 3}
 --- !u!4 &1175456445193023204 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4535023515062960, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
