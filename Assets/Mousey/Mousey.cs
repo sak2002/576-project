@@ -108,6 +108,7 @@ public class Mousey : MonoBehaviour
         }
 
         if(hasWon() && !has_won) {
+            animation_controller.SetInteger("state", 7);
             Debug.Log("You Won!");
             has_won = true;
             return;
@@ -280,7 +281,7 @@ public class Mousey : MonoBehaviour
     private IEnumerator Won()
     { 
         // Add some delay for animations
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(anim_delay*3);
         canvas.GetComponent<WinMenuScript>().OutGameMenuWin(word, wordMeanings[word]);
     }
 
