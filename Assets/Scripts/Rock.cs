@@ -30,18 +30,4 @@ public class Rock : MonoBehaviour
         finalPos.z = transform.position.z + velocity.z * t;
         transform.position = finalPos;
     }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        ////////////////////////////////////////////////
-        // WRITE CODE HERE:
-        // (a) if the object collides with Claire, subtract one life from her, and destroy the apple => wrote this logic in the Claire.cs file
-        // (b) if the object collides with another apple, or its own turret that launched it (birth_turret), don't do anything
-        // (c) if the object collides with anything else (e.g., terrain, a different turret), destroy the apple
-        if(!(other.gameObject.name == birth_catapult.name || other.gameObject.name == "Apple" || other.gameObject.name == "Apple(Clone)")) {
-            Debug.Log("Hello " + other.gameObject.name);
-            Destroy(this.gameObject);
-        }
-        ////////////////////////////////////////////////
-    }
 }

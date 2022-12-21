@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Catapult : MonoBehaviour
+public class Catapult_anim : MonoBehaviour
 {
     public GameObject weapon_prefab;
 
