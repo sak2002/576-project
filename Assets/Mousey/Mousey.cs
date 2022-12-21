@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Mousey : MonoBehaviour
 {
@@ -21,17 +22,38 @@ public class Mousey : MonoBehaviour
     public bool sword;
     public float sword_timer;
     private GameObject gridObj;
+    public GameObject canvas;
+    private Slider slider;
+    private GameObject shieldUI;
+    private GameObject swordUI;
+    private Text wordUI;
+    private Text lettersUI;
     Dictionary<char, List<int[]>> objectives;
     Dictionary<char, int> wordList;
+    string word;
 
 
     // Start is called before the first frame update
     void Start()
     {
+
+        // GameObject canvas = GameObject.Find("Canvas");
+        // scroll_bar = canvas.transform.Find("HealthBar").transform.Find("HealthBar").transform.Find("HealthBarUI")
+        canvas = GameObject.Find("Canvas");
+        slider = canvas.transform.Find("Bar").GetComponent<Slider>();
+        shieldUI = canvas.transform.Find("Shield").gameObject;
+        swordUI = canvas.transform.Find("Sword").gameObject;
+        wordUI = canvas.transform.Find("Word").gameObject.GetComponent<Text>();
+        lettersUI = canvas.transform.Find("Letters").gameObject.GetComponent<Text>();
+        Debug.Log(slider);
         animation_controller = GetComponent<Animator>();
         character_controller = GetComponent<CharacterController>();
         gridObj = GameObject.Find("16x16");
         objectives = gridObj.GetComponent<LevelGenerator>().objectives;
+        word = gridObj.GetComponent<LevelGenerator>().word;
+        Debug.Log(word);
+        wordUI.text = "Target word: " + word;
+        lettersUI.text = "Letters found: ";
         wordList = new Dictionary<char, int>();
         movement_direction = new Vector3(0.0f, 0.0f, 0.0f);
         walking_velocity = 1.5f;
@@ -45,11 +67,14 @@ public class Mousey : MonoBehaviour
         sword = false;
         sword_timer = 0.0f;
         buildLetterList();
+        shieldUI.SetActive(false);
+        swordUI.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
+        slider.value = num_lives;
         
         if(num_lives < 0 && !has_won && !dead) {
             animation_controller.SetInteger("state", 7);
@@ -80,18 +105,18 @@ public class Mousey : MonoBehaviour
 
         if(immune) {
             immune_timer += Time.deltaTime;
-            // Debug.Log((int)immune_timer);
             if(immune_timer > 10) {
                 immune = false;
+                shieldUI.SetActive(false);
                 immune_timer = 0;
             }
         }
 
         if(sword) {
             sword_timer += Time.deltaTime;
-            // Debug.Log(sword_timer);
             if(sword_timer > 10) {
                 sword = false;
+                swordUI.SetActive(false);
                 sword_timer = 0;
             }
         }
@@ -166,6 +191,7 @@ public class Mousey : MonoBehaviour
                     num_lives -= 1;
                     Debug.Log(num_lives);
                     immune = true;
+                    shieldUI.SetActive(true);
                 }
             }
         } else if (e.gameObject.name.StartsWith("NPC_SPIKE")) {
@@ -177,15 +203,18 @@ public class Mousey : MonoBehaviour
                     num_lives -= 2;
                     Debug.Log(num_lives);
                     immune = true;
+                    shieldUI.SetActive(true);
                 }
             }
         } else if (e.gameObject.name.StartsWith("LETTER")) {
             char c = e.gameObject.name[7];
+            lettersUI.text = lettersUI.text + " " + c;
             Debug.Log(c);
             wordList[c] = wordList[c] - 1;
             Destroy(e.gameObject);
         } else if (e.gameObject.name.StartsWith("SWORD")) {
             sword = true;
+            swordUI.SetActive(true);
             Destroy(e.gameObject);
         } else if (e.gameObject.name.StartsWith("Spikes") || e.gameObject.name.StartsWith("Spear")) {
             if(!immune) {
@@ -194,6 +223,7 @@ public class Mousey : MonoBehaviour
                 Debug.Log(num_lives);
                 Debug.Log("hitting spikes");
                 immune = true;
+                shieldUI.SetActive(true);
             }
         }
     }

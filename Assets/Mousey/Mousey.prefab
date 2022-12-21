@@ -281,14 +281,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1367922944147145811}
-  m_LocalRotation: {x: 0.0488252, y: -0, z: -0, w: 0.9988074}
-  m_LocalPosition: {x: 0.119999886, y: 1.49, z: -3.61}
+  m_LocalRotation: {x: 0.065907486, y: -0, z: -0, w: 0.99782574}
+  m_LocalPosition: {x: 0.119999886, y: 3.21, z: -5.89}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1545139114401757056}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 5.597, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 7.558, y: 0, z: 0}
 --- !u!20 &1367922944147145809
 Camera:
   m_ObjectHideFlags: 0
@@ -482,8 +482,12 @@ MonoBehaviour:
   num_lives: 0
   has_won: 0
   dead: 0
+  hit: 0
   immune: 0
   immune_timer: 0
+  sword: 0
+  sword_timer: 0
+  canvas: {fileID: 0}
 --- !u!54 &9140648986951422775
 Rigidbody:
   m_ObjectHideFlags: 0
