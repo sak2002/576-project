@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class Mousey : MonoBehaviour
 {
+    private float anim_delay = 3.0f;
     private Animator animation_controller;
     private CharacterController character_controller;
     public Vector3 movement_direction;
@@ -89,7 +90,7 @@ public class Mousey : MonoBehaviour
         }
 
         if(dead) {
-            canvas.GetComponent<WinMenuScript>().OutGameMenuLose();
+            StartCoroutine("Lost");
             return;
         }
 
@@ -100,7 +101,7 @@ public class Mousey : MonoBehaviour
         }
 
         if(has_won) {
-            canvas.GetComponent<WinMenuScript>().OutGameMenuWin(word, "nbfhjgvhjgghjfv");
+            StartCoroutine("Won");
             return;
         }
 
@@ -248,5 +249,19 @@ public class Mousey : MonoBehaviour
             }
         }
         return true;
+    }
+
+    private IEnumerator Won()
+    { 
+        // Add some delay for animations
+        yield return new WaitForSeconds(anim_delay);
+        canvas.GetComponent<WinMenuScript>().OutGameMenuWin(word, "nbfhjgvhjgghjfv");
+    }
+
+    private IEnumerator Lost()
+    { 
+        // Add some delay for animations
+        yield return new WaitForSeconds(anim_delay);
+        canvas.GetComponent<WinMenuScript>().OutGameMenuLose();
     }
 }
