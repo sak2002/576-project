@@ -41,7 +41,7 @@ public class Catapult : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        game_end = target.GetComponent<Mousey>().has_won;
+        game_end = target.GetComponent<Mousey>().has_won || target.GetComponent<Mousey>().dead;
         if (target == null)
             Debug.LogError("Error: could not find the game character 'player' in the scene. Did you delete the model player from your scene?");
         

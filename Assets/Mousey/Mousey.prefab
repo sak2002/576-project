@@ -494,6 +494,8 @@ MonoBehaviour:
   attackAudio: {fileID: 8300000, guid: b0e62ed71b1538648b719821f4f63b4c, type: 3}
   attackNPCAudio: {fileID: 8300000, guid: 88b1cbe3caa3fee4b8b103b5edd7aba9, type: 3}
   letterAudio: {fileID: 8300000, guid: abdbbfd33a46f4549987385f85c536b5, type: 3}
+  deathAudio: {fileID: 8300000, guid: b54f7b4c15eebd548949e527447df7a9, type: 3}
+  victoryAudio: {fileID: 8300000, guid: 2265753964b738a4080454e18df1cfcb, type: 3}
 --- !u!54 &9140648986951422775
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -39,6 +39,8 @@ public class Mousey : MonoBehaviour
     public AudioClip attackAudio;
     public AudioClip attackNPCAudio;
     public AudioClip letterAudio;
+    public AudioClip deathAudio;
+    public AudioClip victoryAudio;
     string word;
     public Dictionary<string, string> wordMeanings;
     bool idle_hack = true;
@@ -96,6 +98,7 @@ public class Mousey : MonoBehaviour
         
         if(num_lives < 0 && !has_won && !dead) {
             animation_controller.SetInteger("state", 6);
+            mouseyAudioOthers.PlayOneShot(deathAudio);
             Debug.Log("DEEEAAADD");
             dead = true;
             return;
@@ -109,6 +112,7 @@ public class Mousey : MonoBehaviour
 
         if(hasWon() && !has_won) {
             animation_controller.SetInteger("state", 7);
+            mouseyAudioOthers.PlayOneShot(victoryAudio);
             Debug.Log("You Won!");
             has_won = true;
             return;
