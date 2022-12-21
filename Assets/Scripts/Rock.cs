@@ -26,7 +26,7 @@ public class Rock : MonoBehaviour
         float t = Time.deltaTime;
         Vector3 finalPos = new Vector3(0, 0, 0);
         finalPos.x = transform.position.x + velocity.x * t;
-        finalPos.y = initialPos.y - 0.5f * 9.81f * time_since_launch * time_since_launch;
+        finalPos.y = initialPos.y - 0.5f * 7f * time_since_launch * time_since_launch;
         finalPos.z = transform.position.z + velocity.z * t;
         transform.position = finalPos;
     }

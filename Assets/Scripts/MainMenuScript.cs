@@ -6,6 +6,7 @@ public class MainMenuScript : MonoBehaviour
 {
     public GameObject MainMenu;
     public GameObject InstructionsMenu;
+    public GameObject ControlsMenu;
 
     // Start is called before the first frame update
     void Start()
@@ -24,6 +25,7 @@ public class MainMenuScript : MonoBehaviour
         // Show Instructions
         MainMenu.SetActive(false);
         InstructionsMenu.SetActive(true);
+        ControlsMenu.SetActive(false);
     }
 
     public void MainMenuButton()
@@ -31,8 +33,17 @@ public class MainMenuScript : MonoBehaviour
         // Show Main Menu
         MainMenu.SetActive(true);
         InstructionsMenu.SetActive(false);
+        ControlsMenu.SetActive(false);
     }
-    
+
+    public void ControlsMenuButtom()
+    {
+        // Show Controls
+        MainMenu.SetActive(false);
+        InstructionsMenu.SetActive(false);
+        ControlsMenu.SetActive(true);
+    }
+
     public void QuitButton()
     {
         // Quit Game

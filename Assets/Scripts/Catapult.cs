@@ -26,7 +26,7 @@ public class Catapult : MonoBehaviour
         target = GameObject.Find("player");
         if (weapon_prefab == null)
             Debug.LogError("Error: could not find the weapon prefab in the project! Did you delete/move the prefab from your project?");
-        shooting_delay = 4.0f;  
+        shooting_delay = 3.0f;  
         weapon_velocity = 5.0f;
         weapon_starting_pos = new Vector3(0.0f, 0.0f, 0.0f);
         target_in_range = false;
@@ -73,7 +73,7 @@ public class Catapult : MonoBehaviour
                 Vector3 displacement = finalPos - initialPos;
 
                 // Calculate time taken
-                float time = Mathf.Sqrt(Mathf.Abs(2 * displacement.y / 9.81f));
+                float time = Mathf.Sqrt(Mathf.Abs(2 * displacement.y / 7f));
                 // Debug.Log("displacement: " + displacement);
                 // Debug.Log("time: " + time);
                 Vector3 initial_velocity = displacement / time;
