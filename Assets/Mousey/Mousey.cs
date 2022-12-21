@@ -30,6 +30,13 @@ public class Mousey : MonoBehaviour
     private Text lettersUI;
     Dictionary<char, List<int[]>> objectives;
     Dictionary<char, int> wordList;
+    AudioSource mouseyAudioWalking;
+    AudioSource mouseyAudioOthers;
+    public AudioClip hurtAudio;
+    public AudioClip healAudio;
+    public AudioClip attackAudio;
+    public AudioClip attackNPCAudio;
+    public AudioClip letterAudio;
     string word;
     bool idle_hack = true;
 
@@ -49,6 +56,8 @@ public class Mousey : MonoBehaviour
         Debug.Log(slider);
         animation_controller = GetComponent<Animator>();
         character_controller = GetComponent<CharacterController>();
+        mouseyAudioWalking = transform.Find("Ch14").gameObject.GetComponent<AudioSource>();
+        mouseyAudioOthers = transform.Find("soundDummy").gameObject.GetComponent<AudioSource>();
         gridObj = GameObject.Find("16x16");
         objectives = gridObj.GetComponent<LevelGenerator>().objectives;
         word = gridObj.GetComponent<LevelGenerator>().word;
@@ -75,6 +84,7 @@ public class Mousey : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // mouseyAudioOthers.PlayOneShot(hurtAudio);
         slider.value = num_lives;
         
         if(num_lives < 0 && !has_won && !dead) {
@@ -117,6 +127,7 @@ public class Mousey : MonoBehaviour
         }
 
         if(Input.GetKey(KeyCode.UpArrow)) {
+            mouseyAudioWalking.enabled = true;
             if(Input.GetKey(KeyCode.RightShift) || Input.GetKey(KeyCode.LeftShift)) {
                 animation_controller.SetInteger("state", 1);
                 // Debug.Log("state 1");
@@ -142,10 +153,12 @@ public class Mousey : MonoBehaviour
                 }
             }
         } else if (Input.GetKey(KeyCode.DownArrow)) {
+            mouseyAudioWalking.enabled = true;
             animation_controller.SetInteger("state", 4);
             velocity = -1.0f;
         } else {
             animation_controller.SetInteger("state", 0);
+            mouseyAudioWalking.enabled = false;
             if(idle_hack) {
                 velocity = 0.001f;
                 idle_hack = !idle_hack;
@@ -172,13 +185,16 @@ public class Mousey : MonoBehaviour
     void OnCollisionEnter(Collision e) {
         // Debug.Log(e.gameObject.name);
         if(e.gameObject.name.StartsWith("HEART")) {
+            mouseyAudioOthers.PlayOneShot(healAudio);
             num_lives++;
             Debug.Log(num_lives);
         } else if (e.gameObject.name.StartsWith("NPC_SLIME")) {
             if(sword) {
+                mouseyAudioOthers.PlayOneShot(attackNPCAudio);
                 Destroy(e.gameObject);
             } else {
                 if(!immune) {
+                    mouseyAudioOthers.PlayOneShot(hurtAudio);
                     hit = true;
                     num_lives -= 1;
                     Debug.Log(num_lives);
@@ -188,9 +204,11 @@ public class Mousey : MonoBehaviour
             }
         } else if (e.gameObject.name.StartsWith("NPC_SPIKE")) {
             if(sword) {
+                mouseyAudioOthers.PlayOneShot(attackNPCAudio);
                 Destroy(e.gameObject);
             } else {
                 if(!immune) {
+                    mouseyAudioOthers.PlayOneShot(hurtAudio);
                     hit = true;
                     num_lives -= 2;
                     Debug.Log(num_lives);
@@ -200,16 +218,19 @@ public class Mousey : MonoBehaviour
             }
         } else if (e.gameObject.name.StartsWith("LETTER")) {
             char c = e.gameObject.name[7];
+            mouseyAudioOthers.PlayOneShot(letterAudio);
             lettersUI.text = lettersUI.text + " " + c;
             Debug.Log(c);
             wordList[c] = wordList[c] - 1;
             Destroy(e.gameObject);
         } else if (e.gameObject.name.StartsWith("SWORD")) {
+            mouseyAudioOthers.PlayOneShot(attackAudio);
             sword = true;
             swordUI.SetActive(true);
             Destroy(e.gameObject);
         } else if (e.gameObject.name.StartsWith("Weapon") || e.gameObject.name.StartsWith("Rock")) {
             if(!immune) {
+                mouseyAudioOthers.PlayOneShot(hurtAudio);
                 hit = true;
                 num_lives -= 2;
                 Debug.Log(num_lives);
@@ -219,6 +240,7 @@ public class Mousey : MonoBehaviour
             }
         } else if (e.gameObject.name.StartsWith("Spikes") || e.gameObject.name.StartsWith("Spear")) {
             if(!immune) {
+                mouseyAudioOthers.PlayOneShot(hurtAudio);
                 hit = true;
                 num_lives -= 1;
                 Debug.Log(num_lives);

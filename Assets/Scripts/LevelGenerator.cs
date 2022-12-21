@@ -54,13 +54,6 @@ public class LevelGenerator : MonoBehaviour
     {
         // Debug.Log("here");
         bounds = GetComponent<Collider>().bounds;
-        // Debug.Log(bounds.min.x);
-        // Debug.Log(bounds.max.x);
-        // Debug.Log(bounds.size.x);
-        // Debug.Log(bounds.min.y);
-        // Debug.Log(bounds.max.y);
-        // Debug.Log(bounds.min.z);
-        // Debug.Log(bounds.max.z);
 
         length = 24;
         width = 24;
