@@ -110,23 +110,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4670754590690618, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.8126901
+      value: 0.9990605
       objectReference: {fileID: 0}
     - target: {fileID: 4670754590690618, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.5826962
+      value: 0.043336477
       objectReference: {fileID: 0}
     - target: {fileID: 4670754590690618, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.000000089406974
+      value: 0.000000059604638
       objectReference: {fileID: 0}
     - target: {fileID: 4670754590690618, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.00000019185246
+      value: -0.00000020023433
       objectReference: {fileID: 0}
     - target: {fileID: 4670754590690618, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 71.281
+      value: 4.968
       objectReference: {fileID: 0}
     - target: {fileID: 4670754590690618, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -160,6 +160,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weapon_prefab: {fileID: 2577188519649253250, guid: 85b1ce1644cc90648bf12c0121d11607, type: 3}
+--- !u!95 &5371338307302394763
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1172289813830565064}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 8ff58f4acbc794ee2bd7ef1e41e924a3, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!4 &1175456445193023204 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4535023515062960, guid: 43739d3c57ae2ba4cbe919f44dba1d09, type: 3}

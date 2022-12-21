@@ -16,6 +16,8 @@ public class Catapult : MonoBehaviour
     private float distance_to_target = 0.0f;
     private float min_dist = 10.0f;
     private float max_dist = 30.0f;
+    private Animator animation_controller;
+    public bool throwing = false;
     
 
     // Start is called before the first frame update
@@ -24,10 +26,11 @@ public class Catapult : MonoBehaviour
         target = GameObject.Find("player");
         if (weapon_prefab == null)
             Debug.LogError("Error: could not find the weapon prefab in the project! Did you delete/move the prefab from your project?");
-        shooting_delay = 10.0f;  
+        shooting_delay = 3.0f;  
         weapon_velocity = 5.0f;
         weapon_starting_pos = new Vector3(0.0f, 0.0f, 0.0f);
         target_in_range = false;
+        animation_controller = GetComponent<Animator>();
         StartCoroutine("Spawn");
     }
 
@@ -44,7 +47,7 @@ public class Catapult : MonoBehaviour
         // Here, we rotate the catapult in the direction of the target
         Vector3 direction_to_target = target_centroid - catapult_centroid;
         direction_to_target.Normalize();
-        float angle_to_rotate_catapult = Mathf.Rad2Deg * Mathf.Atan2(shooting_direction.x, shooting_direction.z);
+        float angle_to_rotate_catapult = Mathf.Rad2Deg * Mathf.Atan2(direction_to_target.x, direction_to_target.z);
         transform.eulerAngles = new Vector3(0.0f, angle_to_rotate_catapult, 0.0f);
 
         if (distance_to_target >= min_dist && distance_to_target <= max_dist)
@@ -59,12 +62,9 @@ public class Catapult : MonoBehaviour
         {            
             if(target_in_range) {
                 // Defining the catapult object
-                GameObject catapult_arm_base = transform.Find("CatapultArmBase").gameObject;
-                GameObject catapult_arm = catapult_arm_base.transform.Find("CatapultArm").gameObject;
-                GameObject catapult_sphere = catapult_arm.transform.Find("CatapultSphere").gameObject;
+                GameObject catapult_sphere = transform.Find("Sphere").gameObject;
                 
-                // Then we start to take the aim => Catapult starts to launch and rotates its arm
-                catapult_arm_base.transform.rotation = Quaternion.Euler(80.0f, 0, 0);
+                // Then we start to take the aim
                 weapon_starting_pos = catapult_sphere.transform.position;
 
                 // Let's define the initial and final positions first
@@ -73,9 +73,9 @@ public class Catapult : MonoBehaviour
                 Vector3 displacement = finalPos - initialPos;
 
                 // Calculate time taken
-                float time = Mathf.Sqrt(Mathf.Abs(2 * displacement.y / 9.81f));
-                Debug.Log("displacement: " + displacement);
-                Debug.Log("time: " + time);
+                float time = Mathf.Sqrt(Mathf.Abs(2 * displacement.y / 7f));
+                // Debug.Log("displacement: " + displacement);
+                // Debug.Log("time: " + time);
                 Vector3 initial_velocity = displacement / time;
                 initial_velocity.y = 0;
 
@@ -85,10 +85,7 @@ public class Catapult : MonoBehaviour
                 new_object.GetComponent<Rock>().birth_time = Time.time;
                 new_object.GetComponent<Rock>().birth_catapult = transform.gameObject;
                 new_object.GetComponent<Rock>().initialPos = weapon_starting_pos;
-
-                // Bringing back the catapult arm to its original position
-                catapult_arm_base.transform.rotation = Quaternion.Euler(-80.0f, 0, 0);
-            }
+            } 
             // Add some delay, we don't want to bombard the kid
             yield return new WaitForSeconds(shooting_delay);
         }
