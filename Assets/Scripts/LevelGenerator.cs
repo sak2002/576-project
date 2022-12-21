@@ -38,7 +38,7 @@ public class LevelGenerator : MonoBehaviour
     public string word;
     private int width;
     private int length;
-    private List<string> wordBank = new List<string>{ "Apple", "Game", "Word"};
+    private List<string> wordBank = new List<string>{"Rock", "Pink", "Huge", "Hope", "Cute", "Tree", "Slide", "Tower", "Apple", "Train"};
     public Dictionary<string, string> wordMeanings;
     List<int[]> destinations;
     List<int[]> letterDestinations;
@@ -56,9 +56,16 @@ public class LevelGenerator : MonoBehaviour
         // Debug.Log("here");
         bounds = GetComponent<Collider>().bounds;
         wordMeanings = new  Dictionary<string, string>();
-        wordMeanings.Add("Apple", "Seb");
-        wordMeanings.Add("Game", "Khel");
-        wordMeanings.Add("Word", "Shabd");
+        wordMeanings.Add("Rock", "A solid mass made up of minerals. Rock forms much of the earth's outer layer, including cliffs and mountains.");
+        wordMeanings.Add("Pink", "The color that comes from mixing white and red paint.");
+        wordMeanings.Add("Huge", "Of very large weight, size, or amount.");
+        wordMeanings.Add("Hope", "A feeling or chance that something will happen the way one wants it to.");
+        wordMeanings.Add("Cute", "Pretty, charming, or adorable.");
+        wordMeanings.Add("Tree", "A woody plant that has a long main trunk and many branches. Trees usually grow quite tall.");
+        wordMeanings.Add("Slide", "A smooth, sloping track down which a person or thing can slide; chute.");
+        wordMeanings.Add("Tower", "A tall, narrow building or part of a building that rises high above the ground.");
+        wordMeanings.Add("Apple", "A firm, round fruit with juicy white flesh and red, green, or yellow skin.");
+        wordMeanings.Add("Train", "A connected series of railroad cars.");
 
         length = 24;
         width = 24;

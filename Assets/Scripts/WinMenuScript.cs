@@ -30,7 +30,7 @@ public class WinMenuScript : MonoBehaviour
         TMP_Text winWordMeaning = winMenu.transform.Find("WinWordMeaning").gameObject.GetComponent<TMP_Text>();
         winTitle.text = "Congratulations!\nYOU WON!!!!";
         winWord.text = "Congratulations, you successfully completed the word: " + word;
-        winWordMeaning.text = "The meaning of this word is: " + meaning;
+        winWordMeaning.text = "The meaning of this word is:\n" + meaning;
     }
 
     public void OutGameMenuLose()
