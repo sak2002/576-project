@@ -271,6 +271,10 @@ public class Mousey : MonoBehaviour
                 shieldUI.SetActive(true);
             }
         }
+
+        if(num_lives > 10) {
+            num_lives = 10;
+        }
     }
 
     public void buildLetterList() {
