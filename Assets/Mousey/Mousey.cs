@@ -75,7 +75,7 @@ public class Mousey : MonoBehaviour
         movement_direction = new Vector3(0.0f, 0.0f, 0.0f);
         walking_velocity = 1.5f;
         velocity = 0.0f;
-        num_lives = 5;
+        num_lives = 10;
         dead = false;
         has_won = false;
         immune = false;
@@ -205,6 +205,8 @@ public class Mousey : MonoBehaviour
                 mouseyAudioOthers.PlayOneShot(attackNPCAudio);
                 Destroy(e.gameObject);
             } else {
+                if(has_won) 
+                    return;
                 if(!immune) {
                     mouseyAudioOthers.PlayOneShot(hurtAudio);
                     hit = true;
@@ -219,6 +221,8 @@ public class Mousey : MonoBehaviour
                 mouseyAudioOthers.PlayOneShot(attackNPCAudio);
                 Destroy(e.gameObject);
             } else {
+                if(has_won) 
+                    return;
                 if(!immune) {
                     mouseyAudioOthers.PlayOneShot(hurtAudio);
                     hit = true;
@@ -241,6 +245,8 @@ public class Mousey : MonoBehaviour
             swordUI.SetActive(true);
             Destroy(e.gameObject);
         } else if (e.gameObject.name.StartsWith("Weapon") || e.gameObject.name.StartsWith("Rock")) {
+            if(has_won) 
+                return;
             if(!immune) {
                 mouseyAudioOthers.PlayOneShot(hurtAudio);
                 hit = true;
