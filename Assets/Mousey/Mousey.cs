@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class Mousey : MonoBehaviour
 {
-
     private Animator animation_controller;
     private CharacterController character_controller;
     public Vector3 movement_direction;
@@ -24,6 +23,8 @@ public class Mousey : MonoBehaviour
     private GameObject gridObj;
     public GameObject canvas;
     private Slider slider;
+    private GameObject inGameUI;
+    private GameObject outGameUI;
     private GameObject shieldUI;
     private GameObject swordUI;
     private Text wordUI;
@@ -33,26 +34,29 @@ public class Mousey : MonoBehaviour
     string word;
     bool idle_hack = true;
 
-
     // Start is called before the first frame update
     void Start()
     {
-
-        // GameObject canvas = GameObject.Find("Canvas");
         // scroll_bar = canvas.transform.Find("HealthBar").transform.Find("HealthBar").transform.Find("HealthBarUI")
-        canvas = GameObject.Find("Canvas");
-        slider = canvas.transform.Find("Bar").GetComponent<Slider>();
-        shieldUI = canvas.transform.Find("Shield").gameObject;
-        swordUI = canvas.transform.Find("Sword").gameObject;
-        wordUI = canvas.transform.Find("Word").gameObject.GetComponent<Text>();
-        lettersUI = canvas.transform.Find("Letters").gameObject.GetComponent<Text>();
-        Debug.Log(slider);
+        canvas = GameObject.Find("Canvas"); 
+        inGameUI = canvas.transform.Find("InGame").gameObject;
+        outGameUI = canvas.transform.Find("OutGame").gameObject;
+        outGameUI.SetActive(false);
+        slider = inGameUI.transform.Find("Bar").GetComponent<Slider>();
+        shieldUI = inGameUI.transform.Find("Shield").gameObject;
+        swordUI = inGameUI.transform.Find("Sword").gameObject;
+        wordUI = inGameUI.transform.Find("Word").gameObject.GetComponent<Text>();
+        lettersUI = inGameUI.transform.Find("Letters").gameObject.GetComponent<Text>();
+        if(slider == null) {
+            Debug.Log("slider null");
+        }
+        // Debug.Log(slider);
         animation_controller = GetComponent<Animator>();
         character_controller = GetComponent<CharacterController>();
         gridObj = GameObject.Find("16x16");
         objectives = gridObj.GetComponent<LevelGenerator>().objectives;
         word = gridObj.GetComponent<LevelGenerator>().word;
-        Debug.Log(word);
+        // Debug.Log(word);
         wordUI.text = "Target word: " + word;
         lettersUI.text = "Letters found: ";
         wordList = new Dictionary<char, int>();
@@ -85,6 +89,7 @@ public class Mousey : MonoBehaviour
         }
 
         if(dead) {
+            canvas.GetComponent<WinMenuScript>().OutGameMenuLose();
             return;
         }
 
@@ -95,6 +100,7 @@ public class Mousey : MonoBehaviour
         }
 
         if(has_won) {
+            canvas.GetComponent<WinMenuScript>().OutGameMenuWin(word, "nbfhjgvhjgghjfv");
             return;
         }
 
