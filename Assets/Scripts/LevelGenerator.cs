@@ -39,6 +39,7 @@ public class LevelGenerator : MonoBehaviour
     private int width;
     private int length;
     private List<string> wordBank = new List<string>{ "Apple", "Game", "Word"};
+    public Dictionary<string, string> wordMeanings;
     List<int[]> destinations;
     List<int[]> letterDestinations;
     List<int[]> dndDestinations;
@@ -54,6 +55,10 @@ public class LevelGenerator : MonoBehaviour
     {
         // Debug.Log("here");
         bounds = GetComponent<Collider>().bounds;
+        wordMeanings = new  Dictionary<string, string>();
+        wordMeanings.Add("Apple", "Seb");
+        wordMeanings.Add("Game", "Khel");
+        wordMeanings.Add("Word", "Shabd");
 
         length = 24;
         width = 24;
